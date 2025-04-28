@@ -35,10 +35,7 @@ Voxmapper is a graphical user interface (GUI) application for generating texture
 
 ## Basic Usage
 
-1. Run the application:
-   ```bash
-   python texture_generator_gui.py
-   ```
+1. Run the application
 
 2. Use the sliders in the GUI to adjust parameters for noise generation and grass map creation.
 
