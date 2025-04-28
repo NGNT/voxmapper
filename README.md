@@ -3,6 +3,8 @@
 Voxmapper is a graphical user interface (GUI) application for generating textures and grass maps using various noise algorithms. It utilizes the power of Perlin, Fractal and Turbulence noise types to create visually appealing heightmaps for use in Teardown.
 
 ![main GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/580dbb6f88cb9da44cd863dcd0c887427d95b4d96dab2a0baa57547519bf383e.webp)
+![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/6c74d2920207b6e6fe8c132e5a4ea677df227bd965815ac3d5886f458718c7a5.webp)
+![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/1235a154e0c3ef80d52821b39ea3d86e3b677cdf291fee2f040457058989905a.webp)
 
 
 ## Features
