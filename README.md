@@ -45,6 +45,10 @@ Voxmapper is a graphical user interface (GUI) application for generating texture
 
 ## Biome Tags
 
+In order for these to visualize properly on your ground, you must utilize the "file" input field and the "grass" input field appropriately.
+Your generated heightmap goes into the "file" field, while your generated grassmap goes into the "grass" field.
+You can either use a greyscaled heightmap for the "grass" field, or you can use your a generated noise grassmap.
+
 Enter one of these tags into the "biome" input field inside of the biome_ground.lua script in the map editor:
 
 1. "default" - Default terrain
