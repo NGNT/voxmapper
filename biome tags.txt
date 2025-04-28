@@ -1,0 +1,39 @@
+Enter one of these tags into the "biome" input field inside of the biome_ground.lua script in the map editor:
+
+    "default" - Default terrain
+    "desert" - Sandy desert
+    "snowy" - Snow-covered terrain
+    "swamp" - Wetland environment
+    "forest" - Temperate forest
+    "volcano" - Volcanic landscape
+    "tundra" - Arctic tundra
+    "alienjungle" - Alien jungle environment
+    "crystalfields" - Crystal formations
+    "beach" - Sandy beach
+    "coralreef" - Underwater coral reef
+    "savanna" - Golden grasslands
+    "canyon" - Red desert canyon
+    "mushroom" - Fungal landscape
+    "cave" - Dark cave system
+    "alpine" - Mountain environment
+    "bambooforest" - Green bamboo forest
+    "meadow" - Lush grass with wildflowers
+    "icelands" - Glacial environment
+    "jungle" - Dense tropical rainforest
+    "ashlands" - Volcanic ash-covered landscape
+    "mangrove" - Coastal wetland
+    "cherry" - Cherry blossom landscape
+    "highlands" - Rugged upland terrain
+    "mesa" - Layered red clay formations
+    "wasteland" - Barren environment
+    "taiga" - Northern coniferous forest
+    "corruption" - Purple magical corruption
+    "candyland" - Sweet-themed landscape
+    "ethereal" - Heavenly blue realm
+    "cyberpunk" - Urban futuristic landscape
+    "crimson" - Blood-red fantasy theme
+    "vaporwave" - Retro-futuristic aesthetic
+    "neon" - Electric green and yellow
+    "toxic" - Radioactive green environment
+    "glitch" - Digital glitch-themed
+    "underdark" - Fantasy underworld
