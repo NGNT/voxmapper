@@ -90,7 +90,6 @@ Enter one of these tags into the "biome" input field inside of the biome_ground.
 37. "underdark" - Fantasy underworld
 
 ![main GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/580dbb6f88cb9da44cd863dcd0c887427d95b4d96dab2a0baa57547519bf383e.webp)
-![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/3a1e416710eb97a4fc260e3494fe1c9f0910f8cba2c2ee328dabffa55952f3da.webp)
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/0e9fe22a53cc4f5059416fa5c67fbe967fe5ebbded59f545f28a511cda0b5a92.webp)
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/fc79ba0da9c5f0dad5f102e1216acef272848857982b13f79453c56164cfce16.webp)
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/db9ba265ca2c326442fdccfbfbe20b879c86973028ffed2c6f916708c77e67f0.webp)
