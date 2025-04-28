@@ -45,6 +45,8 @@ Voxmapper is a graphical user interface (GUI) application for generating texture
 
 ## Biome Tags
 
+Enter one of these tags into the "biome" input field inside of the biome_ground.lua script in the map editor:
+
 1. "default" - Default terrain
 2. "desert" - Sandy desert
 3. "snowy" - Snow-covered terrain
