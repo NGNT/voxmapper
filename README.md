@@ -1,6 +1,7 @@
 # Voxmapper
 
-Voxmapper is a graphical user interface (GUI) application for generating textures and grass maps using various noise algorithms. It utilizes the power of Perlin, Fractal and Turbulence noise types to create visually appealing heightmaps for use in Teardown.
+Voxmapper is a simple but powerful tool for modding Teardown. It generates textures and grass maps using a variety of noise algorithms.  
+Built with a clean GUI, it lets you craft custom heightmaps and textures for your Teardown maps easily and flawlessly.  
 
 ![main GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/580dbb6f88cb9da44cd863dcd0c887427d95b4d96dab2a0baa57547519bf383e.webp)
 ![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/6c74d2920207b6e6fe8c132e5a4ea677df227bd965815ac3d5886f458718c7a5.webp)
@@ -46,50 +47,52 @@ Voxmapper is a graphical user interface (GUI) application for generating texture
 
 ## Biome Tags
 
-In order for these to visualize properly on your ground, you must utilize the '**file**' input field and the '**grass**' input field appropriately.  
-Heightmaps go into the '**file**' field.  
-Grassmaps go into the '**grass**' field.  
-You can either use a greyscaled heightmap as your grassmap or you can use a generated noise grassmap.  
+To get the most out of your maps, use these fields correctly:  
 
-Enter one of these tags into the "biome" input field inside of the biome_ground.lua script in the map editor:
+    '**file**' field → for your heightmap.  
 
-1. "default" - Default terrain
-2. "desert" - Sandy desert
-3. "snowy" - Snow-covered terrain
-4. "swamp" - Wetland environment
-5. "forest" - Temperate forest
-6. "volcano" - Volcanic landscape
-7. "tundra" - Arctic tundra
-8. "alienjungle" - Alien jungle environment
-9. "crystalfields" - Crystal formations
-10. "beach" - Sandy beach
-11. "coralreef" - Underwater coral reef
-12. "savanna" - Golden grasslands
-13. "canyon" - Red desert canyon
-14. "mushroom" - Fungal landscape
-15. "cave" - Dark cave system
-16. "alpine" - Mountain environment
-17. "bambooforest" - Green bamboo forest
-18. "meadow" - Lush grass with wildflowers
-19. "icelands" - Glacial environment
-20. "jungle" - Dense tropical rainforest
-21. "ashlands" - Volcanic ash-covered landscape
-22. "mangrove" - Coastal wetland
-23. "cherry" - Cherry blossom landscape
-24. "highlands" - Rugged upland terrain
-25. "mesa" - Layered red clay formations
-26. "wasteland" - Barren environment
-27. "taiga" - Northern coniferous forest
-28. "corruption" - Purple magical corruption
-29. "candyland" - Sweet-themed landscape
-30. "ethereal" - Heavenly blue realm
-31. "cyberpunk" - Urban futuristic landscape
-32. "crimson" - Blood-red fantasy theme
-33. "vaporwave" - Retro-futuristic aesthetic
-34. "neon" - Electric green and yellow
-35. "toxic" - Radioactive green environment
-36. "glitch" - Digital glitch-themed
-37. "underdark" - Fantasy underworld
+    '**grass**' field → for your grassmap (either a greyscale heightmap or a noise-generated grassmap).  
+
+In your biome_ground.lua, assign a tag to the '**biome**' input:  
+
+| Tag          | Description                         |
+|--------------|-------------------------------------|
+| default      | Default terrain                     |
+| desert       | Sandy desert                        |
+| snowy        | Snow-covered ground                 |
+| swamp        | Wet, swampy area                    |
+| forest       | Temperate forest                    |
+| volcano      | Volcanic rocks                      |
+| tundra       | Arctic tundra                       |
+| alienjungle  | Alien jungle environment            |
+| crystalfields| Crystal formations                  |
+| beach        | Sandy beach                         |
+| savanna      | Golden grasslands                   |
+| canyon       | Red desert canyon                   |
+| mushroom     | Fungal landscape                    |
+| cave         | Dark cave system                    |
+| alpine       | Mountain environment                |
+| bambooforest | Green bamboo forest                 |
+| meadow       | Lush grass with wildflowers         |
+| icelands     | Glacial environment                 |
+| jungle       | Dense tropical rainforest           |
+| ashlands     | Volcanic ash-covered                |
+| mangrove     | Coastal wetland                     |
+| cherry       | Cherry blossom landscape            |
+| highlands    | Rugged upland terrain               |
+| mesa         | Layered red clay formations         |
+| wasteland    | Barren environment                  |
+| taiga        | Northern coniferous forest          |
+| corruption   | Purple magical corruption           |
+| candyland    | Sweet-themed landscape              |
+| ethereal     | Heavenly blue realm                 |
+| cyberpunk    | Urban futuristic landscape          |
+| crimson      | Blood-red fantasy theme             |
+| vaporwave    | Retro-futuristic aesthetic          |
+| neon         | Electric green and yellow           |
+| toxic        | Radioactive green environment       |
+| glitch       | Digital glitch-themed               |
+| underdark    | Fantasy underworld                  |
 
 
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/0e9fe22a53cc4f5059416fa5c67fbe967fe5ebbded59f545f28a511cda0b5a92.webp)
