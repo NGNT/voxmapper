@@ -49,9 +49,9 @@ Built with a clean GUI, it lets you craft custom heightmaps and textures for you
 
 To get the most out of your maps, use these fields correctly:  
 
-    '**file**' field → for your heightmap.  
+'**file**' field → for your heightmap.  
 
-    '**grass**' field → for your grassmap (either a greyscale heightmap or a noise-generated grassmap).  
+'**grass**' field → for your grassmap (either a greyscale heightmap or a noise-generated grassmap).  
 
 In your biome_ground.lua, assign a tag to the '**biome**' input:  
 
