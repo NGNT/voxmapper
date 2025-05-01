@@ -148,8 +148,8 @@ function createGrassGradient()
         black = {0.6, 0.8, 0.5}     
         white = {1.0, 1.0, 0.9} 
     elseif biome == "coralreef" then
-        black = {0.6, 0.8, 0.5}     -- reef plants
-        white = {1.0, 1.0, 0.9}     -- seaweed
+        black = {0.6, 0.8, 0.5}     -- Reef plants
+        white = {1.0, 1.0, 0.9}     -- Seaweed
     elseif biome == "savanna" then
         black = {0.8, 0.7, 0.3}     -- Golden grass
         white = {0.6, 0.5, 0.3}     -- Dry earth
@@ -174,66 +174,69 @@ function createGrassGradient()
     elseif biome == "icelands" then
         black = {0.8, 0.9, 0.95}    -- Glacial ice
         white = {0.6, 0.7, 0.9}     -- Deep ice crevasse
-	elseif biome == "jungle" then
-		black = {0.1, 0.5, 0.1}     -- Dark jungle green
-		white = {0.3, 0.7, 0.3}     -- Vibrant jungle foliage
-	elseif biome == "ashlands" then
-		black = {0.3, 0.3, 0.3}     -- Ash gray
-		white = {0.5, 0.5, 0.5}     -- Light ash
-	elseif biome == "mangrove" then
-		black = {0.3, 0.4, 0.3}     -- Mangrove green
-		white = {0.5, 0.4, 0.2}     -- Muddy water
-	elseif biome == "cherry" then
-		black = {0.3, 0.6, 0.3}     -- Green grass
-		white = {0.9, 0.7, 0.8}     -- Cherry blossom pink
-	elseif biome == "highlands" then
-		black = {0.3, 0.5, 0.3}     -- Highland grass
-		white = {0.6, 0.6, 0.5}     -- Highland rock
-	elseif biome == "mesa" then
-		black = {0.6, 0.3, 0.2}     -- Red mesa clay
-		white = {0.9, 0.6, 0.4}     -- Light mesa surface
-	elseif biome == "wasteland" then
-		black = {0.5, 0.5, 0.4}     -- Dead grass
-		white = {0.6, 0.5, 0.4}     -- Dusty soil
-	elseif biome == "taiga" then
-		black = {0.4, 0.5, 0.4}     -- Conifer green
-		white = {0.6, 0.7, 0.5}     -- Forest floor
-	elseif biome == "corruption" then
-		black = {0.4, 0.0, 0.6}     -- Deep purple corruption
-		white = {0.8, 0.0, 1.0}     -- Bright magenta energy
-	elseif biome == "candyland" then
-		black = {0.9, 0.5, 0.9}     -- Cotton candy pink
-		white = {0.5, 0.9, 1.0}     -- Blue raspberry
-	elseif biome == "ethereal" then
-		black = {0.6, 0.9, 1.0}     -- Light ethereal blue
-		white = {1.0, 1.0, 0.8}     -- Glowing light
-	elseif biome == "cyberpunk" then
-		black = {0.0, 0.6, 0.9}     -- Neon blue
-		white = {1.0, 0.0, 0.6}     -- Hot pink
-	elseif biome == "crimson" then
-		black = {0.7, 0.0, 0.0}     -- Deep blood red
-		white = {1.0, 0.3, 0.0}     -- Fiery orange
-	elseif biome == "vaporwave" then
-		black = {0.4, 0.0, 0.8}     -- Deep purple
-		white = {0.0, 0.8, 0.8}     -- Teal/cyan
-	elseif biome == "neon" then
-		black = {0.0, 1.0, 0.0}     -- Electric green
-		white = {1.0, 1.0, 0.0}     -- Bright yellow
-	elseif biome == "toxic" then
-		black = {0.2, 0.8, 0.0}     -- Toxic green
-		white = {0.9, 1.0, 0.0}     -- Radioactive yellow
-	elseif biome == "glitch" then
-		black = {0.0, 0.0, 0.0}     -- Black void
-		white = {1.0, 0.0, 1.0}     -- Hot magenta
-	elseif biome == "underdark" then
-		black = {0.2, 0.0, 0.3}     -- Deep underworld purple
-		white = {0.5, 0.0, 0.8}     -- Glowing arcane energy
+    elseif biome == "jungle" then
+        black = {0.1, 0.5, 0.1}     -- Dark jungle green
+        white = {0.3, 0.7, 0.3}     -- Vibrant jungle foliage
+    elseif biome == "ashlands" then
+        black = {0.3, 0.3, 0.3}     -- Ash gray
+        white = {0.5, 0.5, 0.5}     -- Light ash
+    elseif biome == "mangrove" then
+        black = {0.3, 0.4, 0.3}     -- Mangrove green
+        white = {0.5, 0.4, 0.2}     -- Muddy water
+    elseif biome == "cherry" then
+        black = {0.3, 0.6, 0.3}     -- Green grass
+        white = {0.9, 0.7, 0.8}     -- Cherry blossom pink
+    elseif biome == "highlands" then
+        black = {0.3, 0.5, 0.3}     -- Highland grass
+        white = {0.6, 0.6, 0.5}     -- Highland rock
+    elseif biome == "mesa" then
+        black = {0.6, 0.3, 0.2}     -- Red mesa clay
+        white = {0.9, 0.6, 0.4}     -- Light mesa surface
+    elseif biome == "wasteland" then
+        black = {0.5, 0.5, 0.4}     -- Dead grass
+        white = {0.6, 0.5, 0.4}     -- Dusty soil
+    elseif biome == "taiga" then
+        black = {0.4, 0.5, 0.4}     -- Conifer green
+        white = {0.6, 0.7, 0.5}     -- Forest floor
+    elseif biome == "corruption" then
+        black = {0.4, 0.0, 0.6}     -- Deep purple corruption
+        white = {0.8, 0.0, 1.0}     -- Bright magenta energy
+    elseif biome == "candyland" then
+        black = {0.9, 0.5, 0.9}     -- Cotton candy pink
+        white = {0.5, 0.9, 1.0}     -- Blue raspberry
+    elseif biome == "ethereal" then
+        black = {0.6, 0.9, 1.0}     -- Light ethereal blue
+        white = {1.0, 1.0, 0.8}     -- Glowing light
+    elseif biome == "cyberpunk" then
+        black = {0.0, 0.6, 0.9}     -- Neon blue
+        white = {1.0, 0.0, 0.6}     -- Hot pink
+    elseif biome == "crimson" then
+        black = {0.7, 0.0, 0.0}     -- Deep blood red
+        white = {1.0, 0.3, 0.0}     -- Fiery orange
+    elseif biome == "vaporwave" then
+        black = {0.4, 0.0, 0.8}     -- Deep purple
+        white = {0.0, 0.8, 0.8}     -- Teal/cyan
+    elseif biome == "neon" then
+        black = {0.0, 1.0, 0.0}     -- Electric green
+        white = {1.0, 1.0, 0.0}     -- Bright yellow
+    elseif biome == "toxic" then
+        black = {0.2, 0.8, 0.0}     -- Toxic green
+        white = {0.9, 1.0, 0.0}     -- Radioactive yellow
+    elseif biome == "glitch" then
+        black = {0.0, 0.0, 0.0}     -- Black void
+        white = {1.0, 0.0, 1.0}     -- Hot magenta
+    elseif biome == "underdark" then
+        black = {0.2, 0.0, 0.3}     -- Deep underworld purple
+        white = {0.5, 0.0, 0.8}     -- Glowing arcane energy
     else
         black = {0.27, 0.34, 0.23}  -- Default dark green
         white = {0.45, 0.41, 0.26}  -- Default light brown/tan
     end
     
-    for i=1, 8 do
+    local numColors = 2  -- Number of colors to interpolate
+    local stepsPerSegment = 2  -- Number of steps between each color
+
+    for i = 1, 8 do
         local t = (i-1)/7.0
         local r = black[1]*(1-t)+white[1]*t
         local g = black[2]*(1-t)+white[2]*t
@@ -250,6 +253,9 @@ function initDefault()
     CreateMaterial("masonry", 0.39608, 0.39216, 0.38824, 1, 0, 0.4)
     CreateMaterial("masonry", 0.3, 0.3, 0.3, 1, 0, 0.3)
     CreateMaterial("masonry", 0.7, 0.7, 0.7, 1, 0, 0.6)
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initDesert()
@@ -260,6 +266,9 @@ function initDesert()
     CreateMaterial("masonry", 0.6, 0.5, 0.4, 1, 0, 0.4)
     CreateMaterial("masonry", 0.5, 0.4, 0.3, 1, 0, 0.3)
     CreateMaterial("masonry", 0.9, 0.9, 0.7, 1, 0, 0.6)
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initSnowy()
@@ -270,6 +279,9 @@ function initSnowy()
     CreateMaterial("masonry", 0.8, 0.8, 0.9, 1, 0, 0.4)
     CreateMaterial("masonry", 0.7, 0.7, 0.8, 1, 0, 0.3)
     CreateMaterial("masonry", 1, 1, 1, 1, 0, 0.6)
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initSwamp()
@@ -280,6 +292,9 @@ function initSwamp()
     CreateMaterial("masonry", 0.3, 0.3, 0.3, 1, 0, 0.4)
     CreateMaterial("masonry", 0.2, 0.2, 0.2, 1, 0, 0.3)
     CreateMaterial("masonry", 0.5, 0.5, 0.4, 1, 0, 0.6)
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initForest()
@@ -288,6 +303,9 @@ function initForest()
     CreateMaterial("unphysical", 0.55686, 0.74902, 0.38824, 1, 0, 0.2) -- grass green
     CreateMaterial("unphysical", 0.39608, 0.56078, 0.28627, 1, 0, 0.2) -- forest leaves
     CreateMaterial("masonry", 0.3, 0.3, 0.3, 1, 0, 0.4) -- stone paths
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initVolcano()
@@ -296,6 +314,9 @@ function initVolcano()
     CreateMaterial("unphysical", 0.9, 0.1, 0.1, 1, 0, 0.2) -- fiery lava
     CreateMaterial("unphysical", 0.5, 0.0, 0.0, 1, 0, 0.2) -- molten magma
     CreateMaterial("masonry", 0.6, 0.3, 0.1, 1, 0, 0.4) -- rocky volcanic surface
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initTundra()
@@ -304,6 +325,9 @@ function initTundra()
     CreateMaterial("unphysical", 0.95, 0.95, 1.0, 1, 0, 0.2) -- snow
     CreateMaterial("unphysical", 0.7, 0.8, 0.9, 1, 0, 0.2) -- light ice
     CreateMaterial("masonry", 0.8, 0.8, 0.9, 1, 0, 0.4) -- frosty paths
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initAlienJungle()
@@ -311,7 +335,10 @@ function initAlienJungle()
     CreateMaterial("dirt", 0.2, 0.3, 0.1, 1, 0, 0.1) -- alien jungle dirt
     CreateMaterial("unphysical", 0.1, 0.8, 0.1, 1, 0, 0.2) -- glowing plants
     CreateMaterial("unphysical", 0.5, 0.1, 0.5, 1, 0, 0.2) -- glowing purple plants
-    CreateMaterial("masonry", 0.6, 0.6, 0.3, 1, 0, 0.4) -- alien stone
+    CreateMaterial("masonry", 0.6, 0.6, 0.3, 1, 0, 0.4) -- alien stone  
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCrystalFields()
@@ -320,6 +347,9 @@ function initCrystalFields()
     CreateMaterial("unphysical", 0.3, 0.6, 0.9, 1, 0, 0.2) -- light blue crystals
     CreateMaterial("unphysical", 0.6, 0.3, 0.9, 1, 0, 0.2) -- purple crystals
     CreateMaterial("masonry", 0.9, 0.7, 0.9, 1, 0, 0.4) -- sparkling paths
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initBeach()
@@ -328,6 +358,9 @@ function initBeach()
     CreateMaterial("unphysical", 0.6, 0.8, 0.5, 1, 0, 0.2) -- beach grass
     CreateMaterial("unphysical", 0.2, 0.6, 0.9, 1, 0, 0.2) -- water-like color
     CreateMaterial("masonry", 0.8, 0.8, 0.5, 1, 0, 0.4) -- driftwood
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCoralReef()
@@ -336,6 +369,9 @@ function initCoralReef()
     CreateMaterial("unphysical", 0.1, 0.5, 0.3, 1, 0, 0.2) -- deep reef plants
     CreateMaterial("unphysical", 1.0, 0.7, 0.1, 1, 0, 0.2) -- coral
     CreateMaterial("masonry", 0.7, 0.7, 0.7, 1, 0, 0.4) -- reef rock
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initSavanna()
@@ -344,6 +380,9 @@ function initSavanna()
     CreateMaterial("unphysical", 0.8, 0.7, 0.3, 1, 0, 0.2) -- golden grass
     CreateMaterial("unphysical", 0.6, 0.5, 0.3, 1, 0, 0.2) -- dry brush
     CreateMaterial("masonry", 0.7, 0.6, 0.4, 1, 0, 0.4) -- weathered stone
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCanyon()
@@ -352,6 +391,9 @@ function initCanyon()
     CreateMaterial("unphysical", 0.9, 0.6, 0.3, 1, 0, 0.2) -- orange sandstone
     CreateMaterial("unphysical", 0.7, 0.4, 0.2, 1, 0, 0.2) -- red rock
     CreateMaterial("masonry", 0.8, 0.5, 0.3, 1, 0, 0.4) -- striated rock layers
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initMushroom()
@@ -360,6 +402,9 @@ function initMushroom()
     CreateMaterial("unphysical", 0.5, 0.3, 0.5, 1, 0, 0.2) -- purple mushroom surface
     CreateMaterial("unphysical", 0.8, 0.5, 0.8, 1, 0, 0.2) -- pink spores
     CreateMaterial("masonry", 0.6, 0.4, 0.6, 1, 0, 0.4) -- mushroom stems
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCave()
@@ -368,6 +413,9 @@ function initCave()
     CreateMaterial("unphysical", 0.4, 0.4, 0.5, 1, 0, 0.2) -- cave moss
     CreateMaterial("unphysical", 0.2, 0.2, 0.3, 1, 0, 0.2) -- dark areas
     CreateMaterial("masonry", 0.5, 0.5, 0.6, 1, 0, 0.4) -- stalactites
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initAlpine()
@@ -376,6 +424,9 @@ function initAlpine()
     CreateMaterial("unphysical", 0.4, 0.5, 0.3, 1, 0, 0.2) -- alpine grass
     CreateMaterial("unphysical", 0.7, 0.8, 0.7, 1, 0, 0.2) -- rocky mountain surface
     CreateMaterial("masonry", 0.5, 0.5, 0.5, 1, 0, 0.4) -- mountain rock
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initBambooForest()
@@ -384,6 +435,9 @@ function initBambooForest()
     CreateMaterial("unphysical", 0.3, 0.5, 0.2, 1, 0, 0.2) -- bamboo green
     CreateMaterial("unphysical", 0.7, 0.8, 0.5, 1, 0, 0.2) -- light bamboo
     CreateMaterial("masonry", 0.6, 0.7, 0.4, 1, 0, 0.4) -- bamboo stems
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initMeadow()
@@ -392,6 +446,9 @@ function initMeadow()
     CreateMaterial("unphysical", 0.5, 0.7, 0.3, 1, 0, 0.2) -- lush meadow grass
     CreateMaterial("unphysical", 0.9, 0.9, 0.6, 1, 0, 0.2) -- wildflowers
     CreateMaterial("masonry", 0.7, 0.7, 0.6, 1, 0, 0.4) -- flat stones
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initIcelands()
@@ -400,6 +457,9 @@ function initIcelands()
     CreateMaterial("unphysical", 0.8, 0.9, 0.95, 1, 0, 0.2) -- glacial ice
     CreateMaterial("unphysical", 0.6, 0.7, 0.9, 1, 0, 0.2) -- deep ice crevasse
     CreateMaterial("masonry", 0.75, 0.85, 0.95, 1, 0, 0.4) -- ice formations
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initJungle()
@@ -408,6 +468,9 @@ function initJungle()
     CreateMaterial("unphysical", 0.1, 0.5, 0.1, 1, 0, 0.2) -- dark jungle foliage
     CreateMaterial("unphysical", 0.3, 0.7, 0.3, 1, 0, 0.2) -- vibrant jungle plants
     CreateMaterial("masonry", 0.5, 0.5, 0.4, 1, 0, 0.4) -- ancient stone
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initAshlands()
@@ -416,6 +479,9 @@ function initAshlands()
     CreateMaterial("unphysical", 0.3, 0.3, 0.3, 1, 0, 0.2) -- ash
     CreateMaterial("unphysical", 0.5, 0.5, 0.5, 1, 0, 0.2) -- light ash
     CreateMaterial("masonry", 0.4, 0.4, 0.4, 1, 0, 0.4) -- ashen rock
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initMangrove()
@@ -424,6 +490,9 @@ function initMangrove()
     CreateMaterial("unphysical", 0.3, 0.4, 0.3, 1, 0, 0.2) -- mangrove foliage
     CreateMaterial("unphysical", 0.5, 0.4, 0.2, 1, 0, 0.2) -- muddy water
     CreateMaterial("masonry", 0.5, 0.45, 0.35, 1, 0, 0.4) -- mangrove roots
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCherry()
@@ -432,6 +501,9 @@ function initCherry()
     CreateMaterial("unphysical", 0.3, 0.6, 0.3, 1, 0, 0.2) -- green grass
     CreateMaterial("unphysical", 0.9, 0.7, 0.8, 1, 0, 0.2) -- cherry blossom pink
     CreateMaterial("masonry", 0.7, 0.6, 0.5, 1, 0, 0.4) -- cherry wood
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initHighlands()
@@ -440,6 +512,9 @@ function initHighlands()
     CreateMaterial("unphysical", 0.3, 0.5, 0.3, 1, 0, 0.2) -- highland grass
     CreateMaterial("unphysical", 0.6, 0.6, 0.5, 1, 0, 0.2) -- highland rock surface
     CreateMaterial("masonry", 0.55, 0.55, 0.5, 1, 0, 0.4) -- highland stone
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initMesa()
@@ -448,6 +523,9 @@ function initMesa()
     CreateMaterial("unphysical", 0.6, 0.3, 0.2, 1, 0, 0.2) -- red mesa clay
     CreateMaterial("unphysical", 0.9, 0.6, 0.4, 1, 0, 0.2) -- lighter mesa surface
     CreateMaterial("masonry", 0.75, 0.5, 0.35, 1, 0, 0.4) -- layered mesa rock
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initWasteland()
@@ -456,6 +534,9 @@ function initWasteland()
     CreateMaterial("unphysical", 0.5, 0.5, 0.4, 1, 0, 0.2) -- dead grass
     CreateMaterial("unphysical", 0.6, 0.5, 0.4, 1, 0, 0.2) -- dusty surface
     CreateMaterial("masonry", 0.4, 0.35, 0.3, 1, 0, 0.4) -- ruins
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initTaiga()
@@ -464,6 +545,9 @@ function initTaiga()
     CreateMaterial("unphysical", 0.4, 0.5, 0.4, 1, 0, 0.2) -- conifer green
     CreateMaterial("unphysical", 0.6, 0.7, 0.5, 1, 0, 0.2) -- forest floor
     CreateMaterial("masonry", 0.6, 0.5, 0.4, 1, 0, 0.4) -- pine wood
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCorruption()
@@ -472,6 +556,9 @@ function initCorruption()
     CreateMaterial("unphysical", 0.4, 0.0, 0.6, 1, 0, 0.2) -- corruption growth
     CreateMaterial("unphysical", 0.8, 0.0, 1.0, 1, 0, 0.2) -- magical corruption energy
     CreateMaterial("masonry", 0.5, 0.1, 0.7, 1, 0, 0.4) -- corrupted structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCandyland()
@@ -480,6 +567,9 @@ function initCandyland()
     CreateMaterial("unphysical", 0.9, 0.5, 0.9, 1, 0, 0.2) -- cotton candy
     CreateMaterial("unphysical", 0.5, 0.9, 1.0, 1, 0, 0.2) -- blue raspberry
     CreateMaterial("masonry", 1.0, 0.7, 0.7, 1, 0, 0.4) -- peppermint stone
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initEthereal()
@@ -488,6 +578,9 @@ function initEthereal()
     CreateMaterial("unphysical", 0.6, 0.9, 1.0, 1, 0, 0.2) -- light ethereal blue
     CreateMaterial("unphysical", 1.0, 1.0, 0.8, 1, 0, 0.2) -- glowing light
     CreateMaterial("masonry", 0.9, 0.9, 1.0, 1, 0, 0.4) -- heavenly structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCyberpunk()
@@ -496,6 +589,9 @@ function initCyberpunk()
     CreateMaterial("unphysical", 0.0, 0.6, 0.9, 1, 0, 0.2) -- neon blue
     CreateMaterial("unphysical", 1.0, 0.0, 0.6, 1, 0, 0.2) -- hot pink
     CreateMaterial("masonry", 0.3, 0.3, 0.3, 1, 0, 0.4) -- futuristic structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initCrimson()
@@ -504,6 +600,9 @@ function initCrimson()
     CreateMaterial("unphysical", 0.7, 0.0, 0.0, 1, 0, 0.2) -- deep blood red
     CreateMaterial("unphysical", 1.0, 0.3, 0.0, 1, 0, 0.2) -- fiery orange
     CreateMaterial("masonry", 0.8, 0.2, 0.2, 1, 0, 0.4) -- crimson structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initVaporwave()
@@ -512,6 +611,9 @@ function initVaporwave()
     CreateMaterial("unphysical", 0.4, 0.0, 0.8, 1, 0, 0.2) -- deep purple
     CreateMaterial("unphysical", 0.0, 0.8, 0.8, 1, 0, 0.2) -- teal/cyan
     CreateMaterial("masonry", 0.9, 0.0, 0.6, 1, 0, 0.4) -- retro-future structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initNeon()
@@ -520,6 +622,9 @@ function initNeon()
     CreateMaterial("unphysical", 0.0, 1.0, 0.0, 1, 0, 0.2) -- electric green
     CreateMaterial("unphysical", 1.0, 1.0, 0.0, 1, 0, 0.2) -- bright yellow
     CreateMaterial("masonry", 0.0, 0.0, 1.0, 1, 0, 0.4) -- blue structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initToxic()
@@ -528,6 +633,9 @@ function initToxic()
     CreateMaterial("unphysical", 0.2, 0.8, 0.0, 1, 0, 0.2) -- toxic green
     CreateMaterial("unphysical", 0.9, 1.0, 0.0, 1, 0, 0.2) -- radioactive yellow
     CreateMaterial("masonry", 0.4, 0.7, 0.0, 1, 0, 0.4) -- contaminated structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initGlitch()
@@ -536,6 +644,9 @@ function initGlitch()
     CreateMaterial("unphysical", 0.0, 0.0, 0.0, 1, 0, 0.2) -- black void
     CreateMaterial("unphysical", 1.0, 0.0, 1.0, 1, 0, 0.2) -- hot magenta
     CreateMaterial("masonry", 0.0, 1.0, 0.0, 1, 0, 0.4) -- glitched structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
 
 function initUnderdark()
@@ -544,4 +655,7 @@ function initUnderdark()
     CreateMaterial("unphysical", 0.2, 0.0, 0.3, 1, 0, 0.2) -- deep underworld purple
     CreateMaterial("unphysical", 0.5, 0.0, 0.8, 1, 0, 0.2) -- glowing arcane energy
     CreateMaterial("masonry", 0.3, 0.0, 0.5, 1, 0, 0.4) -- ancient magic structures
+
+    -- Call to create grass gradient
+    createGrassGradient()
 end
