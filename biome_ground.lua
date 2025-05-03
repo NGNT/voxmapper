@@ -132,9 +132,9 @@ function createGrassGradient()
     elseif biome == "forest" then
         black = {0.39608, 0.56078, 0.28627}  -- Forest green
         white = {0.55686, 0.74902, 0.38824}  -- Light green
-    elseif biome == "crimson" then
-        black = {0.5, 0.0, 0.0}     -- Dark red
-        white = {0.9, 0.1, 0.1}     -- Bright red
+    elseif biome == "volcano" then
+        black = {0.7, 0.0, 0.0}     -- Dark red
+        white = {1.0, 0.3, 0.0}     -- Bright red
     elseif biome == "tundra" then
         black = {0.7, 0.8, 0.9}     -- Icy blue
         white = {0.95, 0.95, 1.0}   -- White-blue
@@ -210,9 +210,9 @@ function createGrassGradient()
     elseif biome == "cyberpunk" then
         black = {0.0, 0.6, 0.9}     -- Neon blue
         white = {1.0, 0.0, 0.6}     -- Hot pink
-    elseif biome == "volcano" then
-        black = {0.7, 0.0, 0.0}     -- Deep blood red
-        white = {1.0, 0.3, 0.0}     -- Fiery orange
+    elseif biome == "crimson" then
+        black = {1.0, 0.0, 0.0}     -- Deep blood red
+        white = {0.7, 0.0, 0.0}     -- Fiery orange
     elseif biome == "vaporwave" then
         black = {0.4, 0.0, 0.8}     -- Deep purple
         white = {0.0, 0.8, 0.8}     -- Teal/cyan
@@ -308,12 +308,12 @@ function initForest()
     createGrassGradient()
 end
 
-function initCrimson()
-    CreateMaterial("rock", 0.2, 0.2, 0.2) -- dark lava rock
-    CreateMaterial("dirt", 0.8, 0.1, 0.1, 1, 0, 0.1) -- lava red dirt
-    CreateMaterial("unphysical", 0.9, 0.1, 0.1, 1, 0, 0.2) -- fiery lava
-    CreateMaterial("unphysical", 0.5, 0.0, 0.0, 1, 0, 0.2) -- molten magma
-    CreateMaterial("masonry", 0.6, 0.3, 0.1, 1, 0, 0.4) -- rocky volcanic surface
+function initVolcano()
+    CreateMaterial("rock", 0.5, 0.0, 0.0) -- blood rock
+    CreateMaterial("dirt", 0.6, 0.1, 0.0, 1, 0, 0.1) -- crimson soil
+    CreateMaterial("unphysical", 0.7, 0.0, 0.0, 1, 0, 0.2) -- deep blood red
+    CreateMaterial("unphysical", 1.0, 0.3, 0.0, 1, 0, 0.2) -- fiery orange
+    CreateMaterial("masonry", 0.8, 0.2, 0.2, 1, 0, 0.4) -- crimson structures
 
     -- Call to create grass gradient
     createGrassGradient()
@@ -594,12 +594,12 @@ function initCyberpunk()
     createGrassGradient()
 end
 
-function initVolcano()
-    CreateMaterial("rock", 0.5, 0.0, 0.0) -- blood rock
-    CreateMaterial("dirt", 0.6, 0.1, 0.0, 1, 0, 0.1) -- crimson soil
-    CreateMaterial("unphysical", 0.7, 0.0, 0.0, 1, 0, 0.2) -- deep blood red
-    CreateMaterial("unphysical", 1.0, 0.3, 0.0, 1, 0, 0.2) -- fiery orange
-    CreateMaterial("masonry", 0.8, 0.2, 0.2, 1, 0, 0.4) -- crimson structures
+function initCrimson()
+    CreateMaterial("rock", 0.2, 0.2, 0.2) -- dark lava rock
+    CreateMaterial("dirt", 0.8, 0.1, 0.1, 1, 0, 0.1) -- lava red dirt
+    CreateMaterial("unphysical", 1.0, 0.0, 0.0, 1, 0, 0) -- fiery lava
+    CreateMaterial("unphysical", 0.7, 0.0, 0.0, 1, 1, 0, 0) -- molten magma
+    CreateMaterial("masonry", 0.6, 0.3, 0.1, 1, 0, 0.4) -- rocky volcanic surface
 
     -- Call to create grass gradient
     createGrassGradient()
