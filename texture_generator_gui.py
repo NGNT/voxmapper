@@ -37,7 +37,7 @@ class ToolTip:
 class TextureGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("voxmapper v1.1")
+        self.root.title("voxmapper v1.2")
         self.root.geometry("1200x1200")
         
         # Initialize texture generator
@@ -83,7 +83,12 @@ class TextureGeneratorGUI:
             "perlin_noise_amount": tk.DoubleVar(value=0.5),  # Default value for Perlin noise amount
             "simple_noise_amount": tk.DoubleVar(value=0.5),  # Default value for simple noise amount
             "noise_type": tk.StringVar(value="perlin"),  # Default noise type
-            "fractal_noise_amount": tk.DoubleVar(value=0.5)  # Default value for fractal noise amount
+            "fractal_noise_amount": tk.DoubleVar(value=0.5),  # Default value for fractal noise amount
+            "use_noise_grass": tk.BooleanVar(value=False),  # Toggle for noise-based grass
+            "grass_noise_scale": tk.DoubleVar(value=50.0),  # Scale for grass noise
+            "grass_noise_octaves": tk.IntVar(value=4),      # Octaves for grass noise
+            "grass_noise_persistence": tk.DoubleVar(value=0.5),  # Persistence for grass noise
+            "grass_density": tk.DoubleVar(value=0.5)       # Grass density threshold for noise-based grass
         })
         
         # Create controls and preview for noise tab
@@ -97,16 +102,30 @@ class TextureGeneratorGUI:
         self.update_noise_preview()
 
     def _create_header(self):
-        # Create a header label for the entire GUI
-        header_title = ttk.Label(self.main_frame, text="voxmapper", font=("Arial", 26, "bold"))
-        header_label = ttk.Label(self.main_frame, text="v1.1 by NGNT", font=("Arial", 14, "bold"))
-        header_title.pack(side="top", pady=(10, 10), anchor="center")  # Center the header and add padding
-        header_label.pack(side="top", pady=(5, 5), anchor="center")  # Center the header and add padding
+        header_frame = ttk.Frame(self.main_frame)
+        header_frame.pack(side="top", pady=(10, 5), anchor="center")
+
+        # Load and resize the image
+        image = Image.open("voxmapper_logo.png").resize((100, 100), Image.Resampling.LANCZOS)
+        self.logo_image = ImageTk.PhotoImage(image)
+
+        logo_label = ttk.Label(header_frame, image=self.logo_image)
+        logo_label.pack(side="left", padx=(0, 50))
+
+        text_frame = ttk.Frame(header_frame)
+        text_frame.pack(side="left")
+
+        header_title = ttk.Label(text_frame, text="voxmapper", font=("Arial", 26, "bold"))
+        header_label = ttk.Label(text_frame, text="v1.2 by NGNT", font=("Arial", 14, "bold"))
+        
+        header_title.pack(anchor="w")
+        header_label.pack(anchor="w")
 
     def _create_noise_controls(self):
         # Create left panel for controls
-        controls_frame = ttk.Frame(self.noise_tab)
-        controls_frame.pack(side="left", fill="y", padx=(0, 20))
+        scroll_frame = self._make_scrollable_tab(self.noise_tab)
+        controls_frame = ttk.Frame(scroll_frame)
+        controls_frame.pack(fill="both", expand=True, padx=(0, 20))
     
         # Basic settings
         basic_frame = ttk.LabelFrame(controls_frame, text="Basic Settings", padding=10)
@@ -121,12 +140,27 @@ class TextureGeneratorGUI:
         heightmap_frame = ttk.LabelFrame(controls_frame, text="Teardown Heightmap Settings", padding=10)
         heightmap_frame.pack(fill="x", pady=5)
 
+        # Add noise-based grass parameters (initially hidden)
+        self.grass_noise_frame = ttk.LabelFrame(heightmap_frame, text="Grass Noise Settings", padding=5)
+        self.vars["use_noise_grass"].trace_add("write", self._toggle_grass_noise_controls)
+
         # Create sliders for heightmap settings
         self._create_slider(heightmap_frame, "Min Height", "min_height", -1.0, 1.0, 0.1)
         self._create_slider(heightmap_frame, "Max Height", "max_height", 0.0, 2.0, 0.1)
         self._create_slider(heightmap_frame, "Height Scale", "height_scale", 1, 255, 1)  # Restored Height Scale slider
         self._create_slider(heightmap_frame, "Grass Amount", "grass_amount", 0, 255, 1)  # Restored Grass Amount slider
+        self._create_slider(self.grass_noise_frame, "Scale", "grass_noise_scale", 1.0, 200.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Octaves", "grass_noise_octaves", 1, 8, 1)
+        self._create_slider(self.grass_noise_frame, "Persistence", "grass_noise_persistence", 0.1, 1.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Density", "grass_density", 0.0, 1.0, 0.01)
         self._create_slider(heightmap_frame, "Special Value", "special_value", 0, 255, 1)  # Restored Special Value slider
+
+        # Add grass type toggle (uniform vs noise-based)
+        grass_type_frame = ttk.Frame(heightmap_frame)
+        grass_type_frame.pack(fill="x", pady=2)
+        ttk.Label(grass_type_frame, text="Grass Type:").pack(side="left", padx=5)
+        ttk.Radiobutton(grass_type_frame, text="Uniform", variable=self.vars["use_noise_grass"], value=False).pack(side="left")
+        ttk.Radiobutton(grass_type_frame, text="Noise", variable=self.vars["use_noise_grass"], value=True).pack(side="left")
     
         # Add reset zoom button
         ttk.Button(basic_frame, text="Reset Zoom", command=lambda: self.vars["scale"].set(5.0)).pack(fill="x", pady=5)
@@ -150,6 +184,7 @@ class TextureGeneratorGUI:
         self.vars["shape_size"] = tk.IntVar(value=10)
         self.vars["shape_spacing"] = tk.IntVar(value=5)
 
+        # Add a combobox for selecting the grass noise type
         ttk.Label(shape_frame, text="Shape Type:").pack(side="left", padx=5)
         shape_type_combo = ttk.Combobox(shape_frame, textvariable=self.vars["shape_type"], 
                                         values=["circle", "square", "pyramid"], state="readonly")
@@ -174,6 +209,13 @@ class TextureGeneratorGUI:
         # New button for generating greyscale heightmap
         self.generate_greyscale_button = ttk.Button(controls_frame, text="Generate Greyscale Heightmap", command=self.generate_greyscale_heightmap)
         self.generate_greyscale_button.pack(fill="x", pady=5)
+
+    def _toggle_grass_noise_controls(self, *args):
+        """Toggle visibility of grass noise controls based on the use_noise_grass variable."""
+        if self.vars["use_noise_grass"].get():
+            self.grass_noise_frame.pack(fill="x", pady=5)
+        else:
+            self.grass_noise_frame.pack_forget()
 
     def _create_slider(self, parent, label, var_name, from_, to_, resolution):
         frame = ttk.Frame(parent)
@@ -200,6 +242,31 @@ class TextureGeneratorGUI:
         # Check if the slider is related to diffuse tab settings
         if var_name in ["brown_threshold", "green_threshold"]:  # Add any other relevant variables
             slider.bind("<ButtonRelease-1>", lambda event: self.update_colormap_preview())
+
+    def _make_scrollable_tab(self, tab):
+        canvas = tk.Canvas(tab)
+        scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        # Bind both Windows & macOS/Linux (tk differences)
+        scrollable_frame.bind("<Enter>", lambda _: scrollable_frame.bind_all("<MouseWheel>", _on_mousewheel))
+        scrollable_frame.bind("<Leave>", lambda _: scrollable_frame.unbind_all("<MouseWheel>"))
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        return scrollable_frame
 
     def update_grass_map_preview(self):
         # Call the method to generate the grass map based on current settings
@@ -552,12 +619,83 @@ class TextureGeneratorGUI:
         
         # Set channels according to Teardown's format
         heightmap[:, :, 0] = height_scaled  # Red channel = height
-        heightmap[:, :, 1] = self.vars["grass_amount"].get()  # Green channel = grass amount
+        if self.vars["use_noise_grass"].get():
+            # Generate grass noise
+            grass_noise = self._generate_grass_noise(height_data.shape[0], height_data.shape[1])
+            heightmap[:, :, 1] = grass_noise  # Green channel = grass with noise
+        else:
+            # Use uniform grass amount
+            heightmap[:, :, 1] = self.vars["grass_amount"].get()  # Green channel = grass amount
+
         # Fill with hard blue by default
         special_val = self.vars["special_value"].get()
         heightmap[:, :, 2] = special_val
 
         return heightmap
+    
+    def _generate_grass_noise(self, height, width):
+        """Generate grass noise using exactly the same coordinate system as the main noise."""
+
+        # === 1. Grass-specific parameters ===
+        octaves = self.vars["grass_noise_octaves"].get()
+        persistence = self.vars["grass_noise_persistence"].get()
+        grass_scale = self.vars["grass_noise_scale"].get()
+        density = self.vars["grass_density"].get()
+        grass_amount = self.vars["grass_amount"].get()
+        seed = self.vars["seed"].get() + 1000  # Offset seed to differentiate grass
+
+        # === 2. Scaling and resolution matching ===
+        base_scale = self.vars["scale"].get()
+        preview_res = self.vars["noise_size"].get()  # Size used in preview
+        export_res = width  # Export width — assume square
+
+        zoom_factor = export_res / preview_res
+        adjusted_scale = base_scale * zoom_factor * 0.05  # 🔧 Tame zoom with 0.05 multiplier
+
+        # === 3. Use current focus point ===
+        focus_x = max(0.0, min(1.0, getattr(self, "focus_x", 0.5)))
+        focus_y = max(0.0, min(1.0, getattr(self, "focus_y", 0.5)))
+
+        # === 4. Coordinate offset matching main noise ===
+        world_offset_x = (focus_x - 0.5) * width
+        world_offset_y = (focus_y - 0.5) * height
+
+        base_offset_x = 1000.0
+        base_offset_y = 1000.0
+
+        # === 5. Output grass map ===
+        grass_map = np.zeros((height, width), dtype=np.uint8)
+
+        for y in range(height):
+            for x in range(width):
+                # Match coordinate sampling with base texture
+                sample_x = base_offset_x + (x - world_offset_x) / adjusted_scale
+                sample_y = base_offset_y + (y - world_offset_y) / adjusted_scale
+
+                # Apply grass-specific scaling
+                grass_sample_x = sample_x / grass_scale
+                grass_sample_y = sample_y / grass_scale
+
+                noise_value = snoise2(
+                    grass_sample_x,
+                    grass_sample_y,
+                    octaves=octaves,
+                    persistence=persistence,
+                    lacunarity=2.0,
+                    base=seed
+                )
+
+                normalized_noise = (noise_value + 1) / 2
+
+                if normalized_noise < density:
+                    grass_map[y, x] = grass_amount
+                else:
+                    grass_map[y, x] = 0
+
+        return grass_map
+
+
+
 
     def _apply_vignette(self, image, strength, radius):
         """Apply vignette effect to the image."""

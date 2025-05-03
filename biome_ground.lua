@@ -132,7 +132,7 @@ function createGrassGradient()
     elseif biome == "forest" then
         black = {0.39608, 0.56078, 0.28627}  -- Forest green
         white = {0.55686, 0.74902, 0.38824}  -- Light green
-    elseif biome == "volcano" then
+    elseif biome == "crimson" then
         black = {0.5, 0.0, 0.0}     -- Dark red
         white = {0.9, 0.1, 0.1}     -- Bright red
     elseif biome == "tundra" then
@@ -210,7 +210,7 @@ function createGrassGradient()
     elseif biome == "cyberpunk" then
         black = {0.0, 0.6, 0.9}     -- Neon blue
         white = {1.0, 0.0, 0.6}     -- Hot pink
-    elseif biome == "crimson" then
+    elseif biome == "volcano" then
         black = {0.7, 0.0, 0.0}     -- Deep blood red
         white = {1.0, 0.3, 0.0}     -- Fiery orange
     elseif biome == "vaporwave" then
@@ -308,7 +308,7 @@ function initForest()
     createGrassGradient()
 end
 
-function initVolcano()
+function initCrimson()
     CreateMaterial("rock", 0.2, 0.2, 0.2) -- dark lava rock
     CreateMaterial("dirt", 0.8, 0.1, 0.1, 1, 0, 0.1) -- lava red dirt
     CreateMaterial("unphysical", 0.9, 0.1, 0.1, 1, 0, 0.2) -- fiery lava
@@ -594,7 +594,7 @@ function initCyberpunk()
     createGrassGradient()
 end
 
-function initCrimson()
+function initVolcano()
     CreateMaterial("rock", 0.5, 0.0, 0.0) -- blood rock
     CreateMaterial("dirt", 0.6, 0.1, 0.0, 1, 0, 0.1) -- crimson soil
     CreateMaterial("unphysical", 0.7, 0.0, 0.0, 1, 0, 0.2) -- deep blood red
