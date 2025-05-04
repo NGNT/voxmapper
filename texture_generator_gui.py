@@ -37,7 +37,7 @@ class ToolTip:
 class TextureGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("voxmapper v1.2")
+        self.root.title("voxmapper v1.2.1")
         self.root.geometry("1200x1200")
         
         # Initialize texture generator
@@ -88,7 +88,8 @@ class TextureGeneratorGUI:
             "grass_noise_scale": tk.DoubleVar(value=50.0),  # Scale for grass noise
             "grass_noise_octaves": tk.IntVar(value=4),      # Octaves for grass noise
             "grass_noise_persistence": tk.DoubleVar(value=0.5),  # Persistence for grass noise
-            "grass_density": tk.DoubleVar(value=0.5)       # Grass density threshold for noise-based grass
+            "grass_density": tk.DoubleVar(value=0.5),       # Grass density threshold for noise-based grass
+            "noise_grass_density": tk.DoubleVar(value=0.5)  # Grass density threshold for noise-based grass
         })
         
         # Create controls and preview for noise tab
@@ -116,7 +117,7 @@ class TextureGeneratorGUI:
         text_frame.pack(side="left")
 
         header_title = ttk.Label(text_frame, text="voxmapper", font=("Arial", 26, "bold"))
-        header_label = ttk.Label(text_frame, text="v1.2 by NGNT", font=("Arial", 14, "bold"))
+        header_label = ttk.Label(text_frame, text="v1.2.1 by NGNT", font=("Arial", 14, "bold"))
         
         header_title.pack(anchor="w")
         header_label.pack(anchor="w")
@@ -152,7 +153,7 @@ class TextureGeneratorGUI:
         self._create_slider(self.grass_noise_frame, "Scale", "grass_noise_scale", 1.0, 200.0, 0.1)
         self._create_slider(self.grass_noise_frame, "Octaves", "grass_noise_octaves", 1, 8, 1)
         self._create_slider(self.grass_noise_frame, "Persistence", "grass_noise_persistence", 0.1, 1.0, 0.1)
-        self._create_slider(self.grass_noise_frame, "Density", "grass_density", 0.0, 1.0, 0.01)
+        self._create_slider(self.grass_noise_frame, "Density", "noise_grass_density", 0.0, 1.0, 0.01)
         self._create_slider(heightmap_frame, "Special Value", "special_value", 0, 255, 1)  # Restored Special Value slider
 
         # Add grass type toggle (uniform vs noise-based)
@@ -640,7 +641,7 @@ class TextureGeneratorGUI:
         octaves = self.vars["grass_noise_octaves"].get()
         persistence = self.vars["grass_noise_persistence"].get()
         grass_scale = self.vars["grass_noise_scale"].get()
-        density = self.vars["grass_density"].get()
+        density = self.vars["noise_grass_density"].get()
         grass_amount = self.vars["grass_amount"].get()
         seed = self.vars["seed"].get() + 1000  # Offset seed to differentiate grass
 
