@@ -1,11 +1,24 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, colorchooser
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw, ImageFilter
 import numpy as np
 import threading
 import multiprocessing
 from texture_generator import TextureGenerator, NoiseTypeEnum
 from noise import snoise2
+
+# Theme Colors
+THEME_COLOR = "#2c3e50"  # Dark blue-gray
+ACCENT_COLOR = "#3498db"  # Bright blue
+ACCENT_COLOR_DARK = "#2980b9"  # Darker blue
+TEXT_COLOR = "#ecf0f1"  # Off-white
+BACKGROUND_COLOR = THEME_COLOR  # Slightly lighter than theme color
+CANVAS_BG = "#1e272e"  # Dark blue-gray for canvas
+BUTTON_COLOR = "#3498db"  # Bright blue
+SLIDER_COLOR = "#3498db"  # Bright blue
+SUCCESS_COLOR = "#2ecc71"  # Green
+WARNING_COLOR = "#f39c12"  # Orange
+ERROR_COLOR = "#e74c3c"  # Red
 
 class ToolTip:
     def __init__(self, widget, text):
@@ -34,11 +47,119 @@ class ToolTip:
             self.tooltip.destroy()
             self.tooltip = None
 
+class ModernStyle:
+    """Creates a modern style for tkinter widgets"""
+    def __init__(self, root):
+        self.style = ttk.Style()
+        
+        # Configure the basic theme
+        self.style.theme_use('clam')  # Use 'clam' as base theme
+        
+        # Configure the general appearance
+        self.style.configure('.',
+            background=BACKGROUND_COLOR,
+            foreground=TEXT_COLOR,
+            font=('Segoe UI', 10),
+            borderwidth=1)
+        
+        # Configure Frame
+        self.style.configure('TFrame', background=BACKGROUND_COLOR)
+        
+        # Configure LabelFrame
+        self.style.configure('TLabelframe', 
+            background=BACKGROUND_COLOR,
+            foreground=TEXT_COLOR)
+        self.style.configure('TLabelframe.Label', 
+            background=BACKGROUND_COLOR,
+            foreground=ACCENT_COLOR,
+            font=('Segoe UI', 10, 'bold'))
+        
+        # Configure Label
+        self.style.configure('TLabel', 
+            background=BACKGROUND_COLOR,
+            foreground=TEXT_COLOR)
+        
+        # Configure Button
+        self.style.configure('TButton', 
+            background=BUTTON_COLOR,
+            foreground=TEXT_COLOR,
+            padding=(10, 5),
+            relief='flat')
+        self.style.map('TButton',
+            background=[('active', ACCENT_COLOR_DARK), ('disabled', '#7f8c8d')],
+            foreground=[('disabled', '#95a5a6')])
+        
+        # Success Button
+        self.style.configure('Success.TButton', 
+            background=SUCCESS_COLOR,
+            foreground=TEXT_COLOR)
+        self.style.map('Success.TButton',
+            background=[('active', '#27ae60')])
+        
+        # Warning Button
+        self.style.configure('Warning.TButton', 
+            background=WARNING_COLOR,
+            foreground=TEXT_COLOR)
+        self.style.map('Warning.TButton',
+            background=[('active', '#d35400')])
+        
+        # Configure Entry
+        self.style.configure('TEntry', 
+            fieldbackground=THEME_COLOR,
+            foreground=TEXT_COLOR,
+            padding=5)
+        
+        # Configure Combobox
+        self.style.map('TCombobox',
+            fieldbackground=[('readonly', THEME_COLOR)],
+            background=[('readonly', THEME_COLOR)],
+            foreground=[('readonly', TEXT_COLOR)])
+        
+        # Configure Notebook
+        self.style.configure('TNotebook', 
+            background=THEME_COLOR,
+            tabmargins=[2, 5, 2, 0])
+        self.style.configure('TNotebook.Tab', 
+            background=THEME_COLOR,
+            foreground=TEXT_COLOR,
+            padding=[10, 2])
+        self.style.map('TNotebook.Tab',
+            background=[('selected', ACCENT_COLOR)],
+            foreground=[('selected', TEXT_COLOR)])
+            
+        # Configure Scale (Slider)
+        self.style.configure('Horizontal.TScale', 
+            troughcolor=THEME_COLOR,
+            background=SLIDER_COLOR)
+        
+        # Configure Progressbar
+        self.style.configure('Horizontal.TProgressbar', 
+            troughcolor=THEME_COLOR,
+            background=ACCENT_COLOR)
+        
+        # Configure Radiobutton
+        self.style.configure('TRadiobutton', 
+            background=BACKGROUND_COLOR,
+            foreground=TEXT_COLOR)
+        self.style.map('TRadiobutton',
+            background=[('active', BACKGROUND_COLOR)],
+            foreground=[('active', ACCENT_COLOR)])
+
 class TextureGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("voxmapper v1.2.1")
-        self.root.geometry("1200x1200")
+        self.root.title("voxmapper v1.3")
+        self.root.geometry("1350x1050")
+        
+
+         # Apply the modern style
+        self.style = ModernStyle(root)
+        
+        # Configure the root window background
+        self.root.configure(bg=THEME_COLOR)
+        
+        # Create an animation frame counter for effects
+        self.animation_frame = 0
         
         # Initialize texture generator
         self.generator = TextureGenerator()
@@ -91,6 +212,8 @@ class TextureGeneratorGUI:
             "grass_density": tk.DoubleVar(value=0.5),       # Grass density threshold for noise-based grass
             "noise_grass_density": tk.DoubleVar(value=0.5)  # Grass density threshold for noise-based grass
         })
+
+        self.slider_active = {}
         
         # Create controls and preview for noise tab
         self._create_noise_controls()
@@ -102,25 +225,192 @@ class TextureGeneratorGUI:
         # Initial preview update
         self.update_noise_preview()
 
-    def _create_header(self):
-        header_frame = ttk.Frame(self.main_frame)
-        header_frame.pack(side="top", pady=(10, 5), anchor="center")
+    def _create_styled_canvas(self, parent, width=600, height=600):
+        """Creates a styled canvas with a nice background grid pattern"""
+        # Create a frame to hold the canvas
+        canvas_frame = ttk.Frame(parent)
+        canvas_frame.pack(padx=10, pady=10)
 
-        # Load and resize the image
-        image = Image.open("voxmapper_logo.png").resize((100, 100), Image.Resampling.LANCZOS)
-        self.logo_image = ImageTk.PhotoImage(image)
-
-        logo_label = ttk.Label(header_frame, image=self.logo_image)
-        logo_label.pack(side="left", padx=(0, 50))
-
-        text_frame = ttk.Frame(header_frame)
-        text_frame.pack(side="left")
-
-        header_title = ttk.Label(text_frame, text="voxmapper", font=("Arial", 26, "bold"))
-        header_label = ttk.Label(text_frame, text="v1.2.1 by NGNT", font=("Arial", 14, "bold"))
+        self.canvas = tk.Canvas(parent, bg=THEME_COLOR)
         
-        header_title.pack(anchor="w")
-        header_label.pack(anchor="w")
+        # Create the canvas with a dark background
+        canvas = tk.Canvas(canvas_frame, width=width, height=height, bg=CANVAS_BG, 
+                        highlightthickness=1, highlightbackground=ACCENT_COLOR_DARK)
+        
+        # Add a subtle grid pattern
+        grid_size = 20
+        for i in range(0, width, grid_size):
+            canvas.create_line(i, 0, i, height, fill="#3a4b5c", width=1, dash=(1, 3))
+        for i in range(0, height, grid_size):
+            canvas.create_line(0, i, width, i, fill="#3a4b5c", width=1, dash=(1, 3))
+        
+        # Add corner marks
+        corner_size = 10
+        canvas.create_line(0, 0, corner_size, 0, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(0, 0, 0, corner_size, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(width, 0, width-corner_size, 0, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(width, 0, width, corner_size, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(0, height, corner_size, height, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(0, height, 0, height-corner_size, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(width, height, width-corner_size, height, fill=ACCENT_COLOR, width=2)
+        canvas.create_line(width, height, width, height-corner_size, fill=ACCENT_COLOR, width=2)
+        
+        canvas.pack()
+        return canvas
+    
+    def _create_styled_button(self, parent, text, command, style='TButton', width=None, icon=None):
+        """Creates a modern button with hover effect and optional icon"""
+        button_frame = ttk.Frame(parent)
+        button_frame.pack(fill="x", pady=5)
+        
+        if icon:
+            # If icon provided, create an icon button
+            try:
+                # Load the icon image (adjust the path as needed)
+                icon_image = Image.open(icon).resize((16, 16))
+                icon_photo = ImageTk.PhotoImage(icon_image)
+                
+                # Store reference to prevent garbage collection
+                if not hasattr(self, 'icon_references'):
+                    self.icon_references = {}
+                self.icon_references[text] = icon_photo
+                
+                # Create button with icon and text
+                button = ttk.Button(button_frame, text=" " + text, image=icon_photo, 
+                                compound='left', command=command, style=style)
+            except Exception as e:
+                print(f"Error loading icon: {e}")
+                button = ttk.Button(button_frame, text=text, command=command, style=style)
+        else:
+            # Create button without icon
+            button = ttk.Button(button_frame, text=text, command=command, style=style)
+        
+        if width:
+            button.configure(width=width)
+        
+        button.pack(fill="x")
+        
+        # Add hover effect
+        def on_enter(event):
+            button.state(['active'])
+        def on_leave(event):
+            button.state(['!active'])
+        
+        button.bind("<Enter>", on_enter)
+        button.bind("<Leave>", on_leave)
+        
+        return button
+
+    def _create_header(self):
+        """Creates an enhanced header with gradient effect without animation"""
+        # Create header frame with gradient effect
+        header_frame = ttk.Frame(self.main_frame)
+        header_frame.pack(side="top", pady=(10, 15), fill="x")
+        
+        # Initial dimensions
+        gradient_height = 120
+        
+        # Create a canvas to display the gradient
+        header_canvas = tk.Canvas(header_frame, height=gradient_height, 
+                                bd=0, highlightthickness=0, bg=THEME_COLOR)
+        header_canvas.pack(fill="x")
+        
+        # Store canvas for later reference
+        self.header_canvas = header_canvas
+        
+        # Try to load the logo image (static, no animation)
+        try:
+            logo_img = Image.open("voxmapper_logo.png").resize((100, 100), Image.Resampling.LANCZOS)
+            
+            # Add glow effect
+            glow = Image.new('RGBA', (120, 120), (0, 0, 0, 0))
+            glow_draw = ImageDraw.Draw(glow)
+            # Draw a soft glow circle
+            for i in range(10, 0, -1):
+                alpha = int(100 / i)
+                glow_draw.ellipse([10-i, 10-i, 110+i, 110+i], 
+                                fill=(int(ACCENT_COLOR[1:3], 16), 
+                                    int(ACCENT_COLOR[3:5], 16), 
+                                    int(ACCENT_COLOR[5:7], 16), 
+                                    alpha))
+            
+            # Composite the logo on top of the glow
+            glow.paste(logo_img, (10, 10), logo_img if logo_img.mode == 'RGBA' else None)
+            self.logo_image = ImageTk.PhotoImage(glow)
+            has_logo = True
+        except Exception as e:
+            print(f"Error loading logo: {e}")
+            has_logo = False
+        
+        # Function to update the gradient when the window resizes
+        def update_gradient(event=None):
+            # Get current width
+            gradient_width = header_frame.winfo_width()
+            if gradient_width <= 1:  # Not yet properly initialized
+                gradient_width = self.root.winfo_width()
+            if gradient_width <= 1:  # Still not initialized
+                gradient_width = 1200  # Fallback width
+                
+            # Create new gradient image
+            gradient_img = Image.new('RGB', (gradient_width, gradient_height), color=THEME_COLOR)
+            draw = ImageDraw.Draw(gradient_img)
+            
+            # Draw a gradient from theme color to slightly lighter
+            for y in range(gradient_height):
+                # Calculate color interpolation
+                r_factor = y / gradient_height
+                r = int((1-r_factor) * int(THEME_COLOR[1:3], 16) + r_factor * int(BACKGROUND_COLOR[1:3], 16))
+                g = int((1-r_factor) * int(THEME_COLOR[3:5], 16) + r_factor * int(BACKGROUND_COLOR[3:5], 16))
+                b = int((1-r_factor) * int(THEME_COLOR[5:7], 16) + r_factor * int(BACKGROUND_COLOR[5:7], 16))
+                color = f"#{r:02x}{g:02x}{b:02x}"
+                draw.line([(0, y), (gradient_width, y)], fill=color)
+            
+            # Add a subtle pattern overlay for texture
+            for x in range(0, gradient_width, 20):
+                for y in range(0, gradient_height, 20):
+                    # Draw subtle dots
+                    dot_color = f"#{min(int(THEME_COLOR[1:3], 16) + 10, 255):02x}{min(int(THEME_COLOR[3:5], 16) + 10, 255):02x}{min(int(THEME_COLOR[5:7], 16) + 10, 255):02x}"
+                    draw.ellipse([x, y, x+2, y+2], fill=dot_color)
+            
+            # Apply a slight blur for a smoother appearance
+            gradient_img = gradient_img.filter(ImageFilter.GaussianBlur(radius=1))
+            
+            # Convert to PhotoImage and keep a reference
+            self.header_bg = ImageTk.PhotoImage(gradient_img)
+            
+            # Clear canvas and redraw everything
+            header_canvas.delete("all")
+            
+            # Background gradient
+            header_canvas.create_image(0, 0, anchor="nw", image=self.header_bg)
+            
+            # Logo
+            if hasattr(self, 'logo_image') and has_logo:
+                header_canvas.create_image(50, gradient_height//2, image=self.logo_image)
+            else:
+                # Fallback text if logo wasn't loaded
+                header_canvas.create_text(50, gradient_height//2, text="VM", 
+                                        fill=ACCENT_COLOR, font=("Arial", 36, "bold"))
+            
+            # Title text
+            header_canvas.create_text(200, gradient_height//2 - 15, text="VOXMAPPER", 
+                                    fill=ACCENT_COLOR, font=("Arial", 36, "bold"), 
+                                    anchor="w")
+            header_canvas.create_text(200, gradient_height//2 + 15, text="v1.3 by NGNT", 
+                                    fill=TEXT_COLOR, font=("Arial", 16), 
+                                    anchor="w")
+            
+            # Add a subtle separator line
+            header_canvas.create_line(0, gradient_height-1, gradient_width, gradient_height-1, 
+                                fill=ACCENT_COLOR_DARK, width=2)
+        
+        # Bind resize event
+        self.root.bind("<Configure>", lambda e: update_gradient() if e.widget == self.root else None)
+        
+        # Initial gradient rendering
+        update_gradient()
+        
+        return header_frame
 
     def _create_noise_controls(self):
         # Create left panel for controls
@@ -219,55 +509,145 @@ class TextureGeneratorGUI:
             self.grass_noise_frame.pack_forget()
 
     def _create_slider(self, parent, label, var_name, from_, to_, resolution):
-        frame = ttk.Frame(parent)
-        frame.pack(fill="x", pady=2)
-
-        ttk.Label(frame, text=label).pack(side="left", padx=5)
-
-        slider = tk.Scale(frame, from_=from_, to=to_, resolution=resolution,
-                        orient="horizontal", variable=self.vars[var_name])
-        slider.pack(side="left", fill="x", expand=True)
-
-        entry = ttk.Entry(frame, width=6, textvariable=self.vars[var_name])
-        entry.pack(side="right", padx=5)
-
-        if var_name == "noise_size":
-            self.vars[var_name].trace_add("write", lambda *args: self._on_size_change())
-        else:
-            slider.bind("<ButtonRelease-1>", lambda event: self.update_noise_preview())
+        # Check if the variable exists, if not create it with a default value
+        if var_name not in self.vars:
+            if isinstance(resolution, int):
+                self.vars[var_name] = tk.IntVar(value=int((from_ + to_) / 2))
+            else:
+                self.vars[var_name] = tk.DoubleVar(value=(from_ + to_) / 2)
         
-        # Check if the slider is related to grass map settings
-        if var_name in ["grass_density", "perlin_noise_amount", "simple_noise_amount", "lightness"]:
-            slider.bind("<ButtonRelease-1>", lambda event: self.update_grass_map_preview())
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", pady=5)
 
-        # Check if the slider is related to diffuse tab settings
-        if var_name in ["brown_threshold", "green_threshold"]:  # Add any other relevant variables
-            slider.bind("<ButtonRelease-1>", lambda event: self.update_colormap_preview())
+        # Create label directly in the main frame with fixed width
+        slider_label = ttk.Label(frame, text=label, anchor="w", width=15)
+        slider_label.pack(side="left", padx=5)
+
+        # Create the ttk.Scale for the slider
+        slider = ttk.Scale(frame, from_=from_, to=to_, orient="horizontal", 
+                        variable=self.vars[var_name], length=200)
+        slider.pack(side="left", fill="x", expand=True, padx=(0, 5))
+
+        # Create the value display entry directly in the main frame
+        value_display = ttk.Entry(frame, width=8)
+        value_display.pack(side="right", padx=5)
+        
+        # Function to update value display and color
+        def update_value(*args):
+            try:
+                value = self.vars[var_name].get()
+                value_display.delete(0, tk.END)
+                if isinstance(resolution, int):
+                    value_display.insert(0, str(int(value)))
+                else:
+                    value_display.insert(0, f"{value:.2f}")
+                    
+                # Change the color of the value display based on the slider's activity
+                if self.slider_active.get(var_name, False):
+                    value_display.configure(foreground=ACCENT_COLOR)
+                else:
+                    value_display.configure(foreground=TEXT_COLOR)
+            except (tk.TclError, ValueError) as e:
+                print(f"Error handling slider {var_name}: {e}")
+                pass
+
+        # Manual entry handling for the value display
+        def on_value_change(event):
+            try:
+                text_value = value_display.get().strip()
+                if text_value:
+                    if isinstance(self.vars[var_name], tk.IntVar):
+                        value = int(float(text_value))
+                    else:
+                        value = float(text_value)
+                    
+                    # Clamp value within range
+                    value = max(from_, min(to_, value))
+                    self.vars[var_name].set(value)
+
+                    # Trigger update based on slider's variable
+                    if var_name in ["grass_density", "perlin_noise_amount", "simple_noise_amount", "lightness"]:
+                        self.update_grass_map_preview()
+                    elif var_name in ["brown_threshold", "green_threshold"]:
+                        self.update_colormap_preview()
+                    else:
+                        self.update_noise_preview()
+            except (ValueError, tk.TclError):
+                update_value()  # Reset to current value on invalid input
+
+        # Bind events for manual input
+        value_display.bind("<Return>", on_value_change)
+        value_display.bind("<FocusOut>", on_value_change)
+
+        # Slider press and release to handle activity state
+        def on_slider_press(event):
+            self.slider_active[var_name] = True
+            update_value()
+            
+        def on_slider_release(event):
+            self.slider_active[var_name] = False
+            update_value()
+
+            # Trigger appropriate updates based on variable name
+            if var_name in ["grass_density", "perlin_noise_amount", "simple_noise_amount", "lightness"]:
+                self.update_grass_map_preview()
+            elif var_name in ["brown_threshold", "green_threshold"]:
+                self.update_colormap_preview()
+            else:
+                self.update_noise_preview()
+
+        # Bind slider events
+        slider.bind("<ButtonPress-1>", on_slider_press)
+        slider.bind("<ButtonRelease-1>", on_slider_release)
+
+        # Track value changes and update the display
+        self.vars[var_name].trace_add("write", update_value)
+        
+        # Initial update of value display
+        update_value()
+
+        # Add tooltip with range information
+        tooltip_text = f"{label}: Range {from_} to {to_}"
+        ToolTip(slider, tooltip_text)
+
+        return slider
+
 
     def _make_scrollable_tab(self, tab):
-        canvas = tk.Canvas(tab)
-        scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas)
+        # Create canvas with background matching the theme
+        canvas = tk.Canvas(tab, bg=BACKGROUND_COLOR, highlightthickness=0)
 
+        # The scrollbar (ttk picks up the style from ttk.Style)
+        scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
+
+        # Frame that lives inside the canvas
+        scrollable_frame = ttk.Frame(canvas, style="TFrame")
+
+        # Ensure scrollregion expands as content grows
         scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
 
+        # Add the scrollable frame to the canvas
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+        # Connect canvas scroll to scrollbar
         canvas.configure(yscrollcommand=scrollbar.set)
 
+        # Smooth scroll on mousewheel
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-        # Bind both Windows & macOS/Linux (tk differences)
         scrollable_frame.bind("<Enter>", lambda _: scrollable_frame.bind_all("<MouseWheel>", _on_mousewheel))
         scrollable_frame.bind("<Leave>", lambda _: scrollable_frame.unbind_all("<MouseWheel>"))
 
+        # Layout
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
         return scrollable_frame
+
 
     def update_grass_map_preview(self):
         # Call the method to generate the grass map based on current settings
@@ -502,21 +882,104 @@ class TextureGeneratorGUI:
         # Create a frame for the preview and controls
         preview_frame = ttk.Frame(self.noise_tab)
         preview_frame.pack(side="right", pady=(20, 0))
-
-        # Preview canvas
-        self.noise_preview_canvas = tk.Canvas(preview_frame, width=600, height=600, bg='white')
-        self.noise_preview_canvas.pack(side="top")
-
+        
+        # Add a title for the preview section
+        preview_title = ttk.Label(preview_frame, text="NOISE PREVIEW", 
+                                font=("Segoe UI", 12, "bold"))
+        preview_title.pack(side="top", pady=(0, 10))
+        
+        # Add zoom and position indicators
+        info_frame = ttk.Frame(preview_frame)
+        info_frame.pack(side="top", fill="x", pady=(0, 5))
+        
+        # Create a style for info labels
+        self.style.style.configure("Info.TLabel", background=THEME_COLOR, foreground=ACCENT_COLOR)
+        
+        # Scale/zoom display
+        scale_frame = ttk.Frame(info_frame)
+        scale_frame.pack(side="right")
+        ttk.Label(scale_frame, text="Scale: ", style="Info.TLabel").pack(side="left")
+        self.scale_var = tk.StringVar()
+        self.scale_var.set(f"{self.vars['scale'].get():.2f}")
+        ttk.Label(scale_frame, textvariable=self.scale_var, style="Info.TLabel").pack(side="left")
+        self.vars["scale"].trace_add("write", lambda *args: self.scale_var.set(f"{self.vars['scale'].get():.2f}"))
+        
+        # Create styled canvas with grid pattern
+        self.noise_preview_canvas = self._create_styled_canvas(preview_frame, 600, 600)
+        
         self.preview_photo = None  # Persistent reference to image
         self.noise_preview_canvas.focus_set()
-
+        
         # Remove cursor hint for panning
         self.noise_preview_canvas.configure(cursor="arrow")  # Changed from "fleur"
-
+        
         # Bind mouse events for click-and-drag
         self.noise_preview_canvas.bind("<Button-1>", self._on_canvas_click)
         self.noise_preview_canvas.bind("<B1-Motion>", self._on_canvas_drag)
         self.noise_preview_canvas.bind("<ButtonRelease-1>", self._on_canvas_release)
+        
+        # Add control buttons below the canvas
+        controls_frame = ttk.Frame(preview_frame)
+        controls_frame.pack(side="top", fill="x", pady=10)
+        
+        # Reset view button
+        reset_btn = ttk.Button(controls_frame, text="Reset View", 
+                            command=self._reset_view, style="TButton")
+        reset_btn.pack(side="left", padx=5)
+        
+        # Zoom controls
+        zoom_frame = ttk.Frame(controls_frame)
+        zoom_frame.pack(side="right")
+        
+        zoom_out_btn = ttk.Button(zoom_frame, text="−", width=2,
+                                command=lambda: self._adjust_zoom(-1))
+        zoom_out_btn.pack(side="left", padx=2)
+        
+        zoom_in_btn = ttk.Button(zoom_frame, text="+", width=2,
+                            command=lambda: self._adjust_zoom(1))
+        zoom_in_btn.pack(side="left", padx=2)
+        
+        # Add tooltip instructions
+        tip_text = "Click and drag to pan. Use zoom buttons or mouse wheel to zoom."
+        ttk.Label(preview_frame, text=tip_text, foreground="#95a5a6", 
+                font=("Segoe UI", 8)).pack(side="top", pady=(5, 0))
+        
+        # Bind mouse wheel for zooming
+        self.noise_preview_canvas.bind("<MouseWheel>", self._on_mouse_wheel)
+        # For Linux/Mac
+        self.noise_preview_canvas.bind("<Button-4>", lambda e: self._on_mouse_wheel(e, 120))
+        self.noise_preview_canvas.bind("<Button-5>", lambda e: self._on_mouse_wheel(e, -120))
+
+    def _reset_view(self):
+        """Reset the view to default position and scale."""
+        self.focus_x = 0.5
+        self.focus_y = 0.5
+        self.vars["scale"].set(150.0)  # Reset to default scale
+        self.update_noise_preview()
+        
+    def _adjust_zoom(self, direction):
+        """Adjust zoom level."""
+        current_scale = self.vars["scale"].get()
+        if direction > 0:
+            # Zoom in (increase scale value)
+            new_scale = min(500.0, current_scale * 1.25)
+        else:
+            # Zoom out (decrease scale value)
+            new_scale = max(1.0, current_scale * 0.8)
+
+        self.vars["scale"].set(new_scale)
+        self.scale_var.set(f"{new_scale:.2f}")
+        self.update_noise_preview()
+        
+    def _on_mouse_wheel(self, event, delta=None):
+        """Handle mouse wheel events for zooming."""
+        if delta is None:
+            delta = event.delta
+        
+        if delta > 0:
+            self._adjust_zoom(1)  # Zoom in
+        else:
+            self._adjust_zoom(-1)  # Zoom out
 
     def _on_canvas_click(self, event):
         # Store the initial click position
