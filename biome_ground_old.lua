@@ -3,392 +3,84 @@ grassMap = GetString("grass", "", "script png")
 heightScale = GetInt("scale", 64)
 tileSize = GetInt("tilesize", 128)
 hollow = GetInt("hollow", 0)
-local biome = string.lower(GetString("biome", "default"))
-
-function getDefaultGradient()
-    return {
-        black = {0.27, 0.34, 0.23},
-        white = {0.45, 0.41, 0.26},
-        endColor = {0.3, 0.45, 0.15}
-    }
-end
-
-function getDesertGradient()
-    return {
-        black = {0.7, 0.6, 0.4},
-        white = {0.9, 0.8, 0.6},
-        endColor = {0.95, 0.85, 0.4}
-    }
-end
-
-function getSnowyGradient()
-    return {
-        black = {0.85, 0.85, 0.85},
-        white = {0.95, 0.95, 0.95},
-        endColor = {1.0, 1.0, 1.0}
-    }
-end
-
-function getSwampGradient()
-    return {
-        black = {0.1, 0.2, 0.1},
-        white = {0.2, 0.3, 0.2},
-        endColor = {0.3, 0.4, 0.3}
-    }
-end
-
-function getForestGradient()
-    return {
-        black = {0.39608, 0.56078, 0.28627},  -- Forest green
-        white = {0.55686, 0.74902, 0.38824},  -- Light green
-        endColor = {0.35, 0.45, 0.2}         -- Shaded forest floor
-    }
-end
-
-function getVolcanoGradient()
-    return {
-        black = {0.7, 0.0, 0.0},     -- Dark red
-        white = {1.0, 0.3, 0.0},     -- Bright red
-        endColor = {0.1, 0.0, 0.0}  -- Burnt lava black
-    }
-end
-
-function getTundraGradient()
-    return {
-        black = {0.7, 0.8, 0.9},     -- Icy blue
-        white = {0.95, 0.95, 1.0},   -- White-blue
-        endColor = {0.9, 1.0, 1.0}  -- Bright icy surface
-    }
-end
-
-function getAlienGradient()
-    return {
-        black = {0.1, 0.8, 0.1},     -- Alien green
-        white = {0.5, 0.1, 0.5},     -- Purple
-        endColor = {0.9, 0.0, 0.6}  -- 	Exotic bioluminescence
-    }
-end
-
-function getCrystalGradient()
-    return {
-        black = {0.3, 0.6, 0.9},     -- Blue crystal
-        white = {0.6, 0.3, 0.9},     -- Purple crystal
-        endColor = {0.9, 0.6, 1.0}  -- Magical pastel sheen
-    }
-end
-
-function getBeachGradient()
-    return {
-        black = {0.6, 0.8, 0.5},     
-        white = {1.0, 1.0, 0.9},
-        endColor = {0.7, 0.9, 0.6}  -- Soft green sea foam
-    }
-end
-
-function getCoralGradient()
-    return {
-        black = {0.6, 0.8, 0.5},     -- Reef plants
-        white = {1.0, 1.0, 0.9},     -- Seaweed
-        endColor = {1.0, 0.7, 0.5}  -- Coral orange-pink
-    }
-end
-
-function getSavannaGradient()
-    return {
-        black = {0.8, 0.7, 0.3},     -- Golden grass
-        white = {0.6, 0.5, 0.3},     -- Dry earth
-        endColor = {1.0, 0.9, 0.6}  -- 	Sunset savanna glow
-    }
-end
-
-function getCanyonGradient()
-    return {
-        black = {0.8, 0.4, 0.2},     -- Red canyon
-        white = {0.9, 0.6, 0.3},     -- Orange sandstone
-        endColor = {1.0, 0.7, 0.5}  -- Rich terracotta fade
-    }
-end
-
-function getMushroomGradient()
-    return {
-        black = {0.5, 0.3, 0.5},     -- Purple mushroom surface
-        white = {0.8, 0.5, 0.8},     -- Light pink spores
-        endColor = {0.3, 0.2, 0.3}  -- Fungal underbrush
-    }
-end
-
-function getCaveGradient()
-    return {
-        black = {0.2, 0.2, 0.3},     -- Dark cave floor
-        white = {0.4, 0.4, 0.5},     -- Cave moss
-        endColor = {0.1, 0.1, 0.2}  -- Subsurface dark
-    }
-end
-
-function getAlpineGradient()
-    return {
-        black = {0.4, 0.5, 0.3},     -- Alpine grass
-        white = {0.7, 0.8, 0.7},     -- Rocky mountain surface
-        endColor = {0.6, 0.7, 0.5}  -- Dusty green slope
-    }
-end
-
-function getBambooGradient()
-    return {
-        black = {0.3, 0.5, 0.2},     -- Bamboo green
-        white = {0.7, 0.8, 0.5},     -- Light bamboo
-        endColor = {0.5, 0.6, 0.3}  -- Bamboo leaf green
-    }
-end
-
-function getMeadowGradient()
-    return {
-        black = {0.5, 0.7, 0.3},     -- Lush meadow
-        white = {0.9, 0.9, 0.6},     -- Wildflowers
-        endColor = {0.95, 1.0, 0.8} -- Bright flower tip highlight
-    }
-end
-
-function getIceGradient()
-    return {
-        black = {0.8, 0.9, 0.95},    -- Glacial ice
-        white = {0.6, 0.7, 0.9},     -- Deep ice crevasse
-        endColor = {0.7, 0.8, 1.0}  -- Polar shimmer
-    }
-end
-
-function getJungleGradient()
-    return {
-        black = {0.1, 0.5, 0.1},     -- Dark jungle green
-        white = {0.3, 0.7, 0.3},     -- Vibrant jungle foliage
-        endColor = {0.2, 0.6, 0.2}  -- Shaded foliage base
-    }
-end
-
-function getAshGradient()
-    return {
-        black = {0.3, 0.3, 0.3},     -- Ash gray
-        white = {0.5, 0.5, 0.5},     -- Light ash
-        endColor = {0.2, 0.2, 0.2}  -- Charcoal dust 
-    }
-end
-
-function getMangroveGradient()
-    return {
-        black = {0.3, 0.4, 0.3},     -- Mangrove green
-        white = {0.5, 0.4, 0.2},     -- Muddy water
-        endColor = {0.4, 0.3, 0.2}  -- Mud-rich sediment
-    }
-end
-
-function getCherryGradient()
-    return {
-        black = {0.3, 0.6, 0.3},     -- Green grass
-        white = {0.9, 0.7, 0.8},     -- Cherry blossom pink
-        endColor = {1.0, 0.8, 0.9}  -- Blush petals
-    }
-end
-
-function getHighGradient()
-    return {
-        black = {0.3, 0.5, 0.3},     -- Highland grass
-        white = {0.6, 0.6, 0.5},     -- Highland rock
-        endColor = {0.4, 0.4, 0.3}  -- Rocky soil tone
-    }
-end
-
-function getMesaGradient()
-    return {
-        black = {0.6, 0.3, 0.2},     -- Red mesa clay
-        white = {0.9, 0.6, 0.4},     -- Light mesa surface
-        endColor = {1.0, 0.8, 0.6}  -- Bright clay dust
-    }
-end
-
-function getWasteGradient()
-    return {
-        black = {0.5, 0.5, 0.4},     -- Dead grass
-        white = {0.6, 0.5, 0.4},     -- Dusty soil
-        endColor = {0.3, 0.3, 0.2}  -- Barren cracked land
-    }
-end
-
-function getTaigaGradient()
-    return {
-        black = {0.4, 0.5, 0.4},     -- Conifer green
-        white = {0.6, 0.7, 0.5},     -- Forest floor
-        endColor = {0.3, 0.4, 0.3}  -- Pine shadow
-    }
-end
-
-function getCorruptionGradient()
-    return {
-        black = {0.4, 0.0, 0.6},     -- Deep purple corruption
-        white = {0.8, 0.0, 1.0},     -- Bright magenta energy
-        endColor = {0.6, 0.0, 0.9}  -- Dark magic
-    }
-end
-
-function getCandyGradient()
-    return {
-        black = {0.9, 0.5, 0.9},     -- Cotton candy pink
-        white = {0.5, 0.9, 1.0},     -- Blue raspberry
-        endColor = {1.0, 1.0, 1.0}  -- Frosted sugar
-    }
-end
-
-function getEtherealGradient()
-    return {
-        black = {0.6, 0.9, 1.0},     -- Light ethereal blue
-        white = {1.0, 1.0, 0.8},     -- Glowing light
-        endColor = {0.8, 0.6, 1.0}  -- Dreamy pastel purple
-    }
-end
-
-function getCyberGradient()
-    return {
-        black = {0.0, 0.6, 0.9},     -- Neon blue
-        white = {1.0, 0.0, 0.6},     -- Hot pink
-        endColor = {0.2, 1.0, 1.0}  -- Electric cyan pulse
-    }
-end
-
-function getCrimsonGradient()
-    return {
-        black = {1.0, 0.0, 0.0},     -- Deep blood red
-        white = {0.7, 0.0, 0.0},     -- Fiery orange
-        endColor = {0.4, 0.0, 0.0}  -- Blood-drenched red
-    }
-end
-
-function getVaporGradient()
-    return {
-        black = {0.4, 0.0, 0.8},     -- Deep purple
-        white = {0.0, 0.8, 0.8},     -- Teal/cyan
-        endColor = {1.0, 0.7, 1.0}  -- Bubblegum nostalgia
-    }
-end
-
-function getNeonGradient()
-    return {
-        black = {0.0, 1.0, 0.0},     -- Electric green
-        white = {1.0, 1.0, 0.0},     -- Bright yellow
-        endColor = {1.0, 0.0, 1.0}  -- Bright pink zap
-    }
-end
-
-function getToxicGradient()
-    return {
-        black = {0.2, 0.8, 0.0},     -- Toxic green
-        white = {0.9, 1.0, 0.0},     -- Radioactive yellow
-        endColor = {0.1, 0.6, 0.0}  -- 	Oozing slime base
-    }
-end
-
-function getGlitchGradient()
-    return {
-        black = {0.0, 0.0, 0.0},     -- Black void
-        white = {1.0, 0.0, 1.0},     -- Hot magenta
-        endColor = {0.0, 1.0, 1.0}  -- Broken cyan pixel flash
-    }
-end
-
-function getUnderGradient()
-    return {
-        black = {0.2, 0.0, 0.3},     -- Deep underworld purple
-        white = {0.5, 0.0, 0.8},     -- Glowing arcane energy
-        endColor = {0.1, 0.0, 0.2}  -- Abyss shadow deep
-    }
-end
-
-local gradientPresets = {
-    default = getDefaultGradient,
-    desert = getDesertGradient,
-    snowy = getSnowyGradient,
-    swamp = getSwampGradient,
-    forest = getForestGradient,
-    volcano = getVolcanoGradient,
-    tundra = getTundraGradient,
-    alienjungle = getAlienGradient,
-    crystalfields = getCrystalGradient,
-    beach = getBeachGradient,
-    coralreef = getCoralGradient,
-    savanna = getSavannaGradient,
-    canyon = getCanyonGradient,
-    mushroom = getMushroomGradient,
-    cave = getCaveGradient,
-    alpine = getAlpineGradient,
-    bambooforest = getBambooGradient,
-    meadow = getMeadowGradient,
-    icelands = getIceGradient,
-    jungle = getJungleGradient,
-    ashlands = getAshGradient,
-    mangrove = getMangroveGradient,
-    cherry = getCherryGradient,
-    highlands =  getHighGradient,
-    mesa = getMesaGradient,
-    wasteland = getWasteGradient,
-    taiga = getTaigaGradient,
-    corruption = getCorruptionGradient,
-    candyland = getCandyGradient,
-    ethereal = getEtherealGradient,
-    cyberpunk = getCyberGradient,
-    crimson = getCrimsonGradient,
-    vaporwave = getVaporGradient,
-    neon = getNeonGradient,
-    toxic = getToxicGradient,
-    glitch = getGlitchGradient,
-    underdark = getUnderGradient
-}
+biome = string.lower(GetString("biome", "default"))
 
 function init()
 
-    DebugPrint("Biome: " .. biome)
-
-    local biomeInitializers = {
-        default = initDefault,
-        desert = initDesert,
-        snowy = initSnowy,
-        swamp = initSwamp,
-        forest = initForest,
-        volcano = initVolcano,
-        tundra = initTundra,
-        alienjungle = initAlienJungle,
-        crystalfields = initCrystalFields,
-        beach = initBeach,
-        coralreef = initCoralReef,
-        savanna = initSavanna,
-        canyon = initCanyon,
-        mushroom = initMushroom,
-        cave = initCave,
-        alpine = initAlpine,
-        bambooforest = initBambooForest,
-        meadow = initMeadow,
-        icelands = initIcelands,
-        jungle = initJungle,
-        ashlands = initAshlands,
-        mangrove = initMangrove,
-        cherry = initCherry,
-        highlands = initHighlands,
-        mesa = initMesa,
-        wasteland = initWasteland,
-        taiga = initTaiga,
-        corruption = initCorruption,
-        candyland = initCandyland,
-        ethereal = initEthereal,
-        cyberpunk = initCyberpunk,
-        crimson = initCrimson,
-        vaporwave = initVaporwave,
-        neon = initNeon,
-        toxic = initToxic,
-        glitch = initGlitch,
-        underdark = initUnderdark
-    }
-
-    local initializer = biomeInitializers[biome]
-    if initializer then
-        DebugPrint("Using initializer for biome: " .. biome)
-        initializer()
+    if biome == "default" then
+        initDefault()
+    elseif biome == "desert" then
+        initDesert()
+    elseif biome == "snowy" then
+        initSnowy()
+    elseif biome == "swamp" then
+        initSwamp()
+    elseif biome == "forest" then
+        initForest()
+    elseif biome == "volcano" then
+        initVolcano()
+    elseif biome == "tundra" then
+        initTundra()
+    elseif biome == "alienjungle" then
+        initAlienJungle()
+    elseif biome == "crystalfields" then
+        initCrystalFields()
+    elseif biome == "beach" then
+        initBeach()
+    elseif biome == "coralreef" then
+        initCoralReef()
+    elseif biome == "savanna" then
+        initSavanna()
+    elseif biome == "canyon" then
+        initCanyon()
+    elseif biome == "mushroom" then
+        initMushroom()
+    elseif biome == "cave" then
+        initCave()
+    elseif biome == "alpine" then
+        initAlpine()
+    elseif biome == "bambooforest" then
+        initBambooForest()
+    elseif biome == "meadow" then
+        initMeadow()
+    elseif biome == "icelands" then
+        initIcelands()
+	elseif biome == "jungle" then
+		initJungle()
+	elseif biome == "ashlands" then
+		initAshlands()
+	elseif biome == "mangrove" then
+		initMangrove()
+	elseif biome == "cherry" then
+		initCherry()
+	elseif biome == "highlands" then
+		initHighlands()
+	elseif biome == "mesa" then
+		initMesa()
+	elseif biome == "wasteland" then
+		initWasteland()
+	elseif biome == "taiga" then
+		initTaiga()
+	elseif biome == "corruption" then
+		initCorruption()
+	elseif biome == "candyland" then
+		initCandyland()
+	elseif biome == "ethereal" then
+		initEthereal()
+	elseif biome == "cyberpunk" then
+		initCyberpunk()
+	elseif biome == "crimson" then
+		initCrimson()
+	elseif biome == "vaporwave" then
+		initVaporwave()
+	elseif biome == "neon" then
+		initNeon()
+	elseif biome == "toxic" then
+		initToxic()
+	elseif biome == "glitch" then
+		initGlitch()
+	elseif biome == "underdark" then
+		initUnderdark()
     else
         DebugPrint("Unknown biome selected: " .. biome .. ", using default")
         initDefault()
@@ -422,35 +114,183 @@ function init()
     end
 end
 
-DebugPrint("Using biome: " .. biome)
-DebugPrint("Gradient preset: " .. tostring(gradientPresets[biome]))
-
 function createGrassGradient()
-    local preset = gradientPresets[biome] or getDefaultGradient
-    local gradient = preset()
-
-    local black = gradient.black
-    local white = gradient.white
-    local endColor = gradient.endColor
+    local black, white, endColor
+    
+    if biome == "default" then
+        black = {0.27, 0.34, 0.23}  -- Dark green
+        white = {0.45, 0.41, 0.26}  -- Light brown/tan
+		endColor = {0.3, 0.45, 0.15} -- Mossy green
+    elseif biome == "desert" then
+        black = {0.7, 0.6, 0.4}     -- Sandy color
+        white = {0.9, 0.8, 0.6}     -- Light sand
+		endColor = {0.95, 0.85, 0.4} -- Sun-scorched yellow
+    elseif biome == "snowy" then
+        black = {0.85, 0.85, 0.95}  -- Light blue-white
+        white = {1.0, 1.0, 1.0}     -- Pure white
+		endColor = 	{0.8, 0.9, 1.0} -- 	Frosty blue tint
+    elseif biome == "swamp" then
+        black = {0.25, 0.35, 0.25}  -- Dark swamp green
+        white = {0.3, 0.4, 0.3}     -- Muddy green
+		endColor = {0.2, 0.3, 0.2}  -- Deeper muck green
+    elseif biome == "forest" then
+        black = {0.39608, 0.56078, 0.28627}  -- Forest green
+        white = {0.55686, 0.74902, 0.38824}  -- Light green
+        endColor = {0.35, 0.45, 0.2}         -- Shaded forest floor
+    elseif biome == "volcano" then
+        black = {0.7, 0.0, 0.0}     -- Dark red
+        white = {1.0, 0.3, 0.0}     -- Bright red
+        endColor = {0.1, 0.0, 0.0}  -- Burnt lava black
+    elseif biome == "tundra" then
+        black = {0.7, 0.8, 0.9}     -- Icy blue
+        white = {0.95, 0.95, 1.0}   -- White-blue
+        endColor = {0.9, 1.0, 1.0}  -- Bright icy surface
+    elseif biome == "alienjungle" then
+        black = {0.1, 0.8, 0.1}     -- Alien green
+        white = {0.5, 0.1, 0.5}     -- Purple
+        endColor = {0.9, 0.0, 0.6}  -- 	Exotic bioluminescence
+    elseif biome == "crystalfields" then
+        black = {0.3, 0.6, 0.9}     -- Blue crystal
+        white = {0.6, 0.3, 0.9}     -- Purple crystal
+        endColor = {0.9, 0.6, 1.0}  -- Magical pastel sheen
+    elseif biome == "beach" then
+        black = {0.6, 0.8, 0.5}     
+        white = {1.0, 1.0, 0.9}
+        endColor = {0.7, 0.9, 0.6}  -- Soft green sea foam
+    elseif biome == "coralreef" then
+        black = {0.6, 0.8, 0.5}     -- Reef plants
+        white = {1.0, 1.0, 0.9}     -- Seaweed
+        endColor = {1.0, 0.7, 0.5}  -- Coral orange-pink
+    elseif biome == "savanna" then
+        black = {0.8, 0.7, 0.3}     -- Golden grass
+        white = {0.6, 0.5, 0.3}     -- Dry earth
+        endColor = {1.0, 0.9, 0.6}  -- 	Sunset savanna glow
+    elseif biome == "canyon" then
+        black = {0.8, 0.4, 0.2}     -- Red canyon
+        white = {0.9, 0.6, 0.3}     -- Orange sandstone
+        endColor = {1.0, 0.7, 0.5}  -- Rich terracotta fade
+    elseif biome == "mushroom" then
+        black = {0.5, 0.3, 0.5}     -- Purple mushroom surface
+        white = {0.8, 0.5, 0.8}     -- Light pink spores
+        endColor = {0.3, 0.2, 0.3}  -- Fungal underbrush
+    elseif biome == "cave" then
+        black = {0.2, 0.2, 0.3}     -- Dark cave floor
+        white = {0.4, 0.4, 0.5}     -- Cave moss
+        endColor = {0.1, 0.1, 0.2}  -- Subsurface dark
+    elseif biome == "alpine" then
+        black = {0.4, 0.5, 0.3}     -- Alpine grass
+        white = {0.7, 0.8, 0.7}     -- Rocky mountain surface
+        endColor = {0.6, 0.7, 0.5}  -- Dusty green slope
+    elseif biome == "bambooforest" then
+        black = {0.3, 0.5, 0.2}     -- Bamboo green
+        white = {0.7, 0.8, 0.5}     -- Light bamboo
+        endColor = {0.5, 0.6, 0.3}  -- Bamboo leaf green
+    elseif biome == "meadow" then
+        black = {0.5, 0.7, 0.3}     -- Lush meadow
+        white = {0.9, 0.9, 0.6}     -- Wildflowers
+        endColor = {0.95, 1.0, 0.8} -- Bright flower tip highlight
+    elseif biome == "icelands" then
+        black = {0.8, 0.9, 0.95}    -- Glacial ice
+        white = {0.6, 0.7, 0.9}     -- Deep ice crevasse
+        endColor = {0.7, 0.8, 1.0}  -- Polar shimmer
+    elseif biome == "jungle" then
+        black = {0.1, 0.5, 0.1}     -- Dark jungle green
+        white = {0.3, 0.7, 0.3}     -- Vibrant jungle foliage
+        endColor = {0.2, 0.6, 0.2}  -- Shaded foliage base
+    elseif biome == "ashlands" then
+        black = {0.3, 0.3, 0.3}     -- Ash gray
+        white = {0.5, 0.5, 0.5}     -- Light ash
+        endColor = {0.2, 0.2, 0.2}  -- Charcoal dust
+    elseif biome == "mangrove" then
+        black = {0.3, 0.4, 0.3}     -- Mangrove green
+        white = {0.5, 0.4, 0.2}     -- Muddy water
+        endColor = {0.4, 0.3, 0.2}  -- Mud-rich sediment
+    elseif biome == "cherry" then
+        black = {0.3, 0.6, 0.3}     -- Green grass
+        white = {0.9, 0.7, 0.8}     -- Cherry blossom pink
+        endColor = {1.0, 0.8, 0.9}  -- Blush petals
+    elseif biome == "highlands" then
+        black = {0.3, 0.5, 0.3}     -- Highland grass
+        white = {0.6, 0.6, 0.5}     -- Highland rock
+        endColor = {0.4, 0.4, 0.3}  -- Rocky soil tone
+    elseif biome == "mesa" then
+        black = {0.6, 0.3, 0.2}     -- Red mesa clay
+        white = {0.9, 0.6, 0.4}     -- Light mesa surface
+        endColor = {1.0, 0.8, 0.6}  -- Bright clay dust
+    elseif biome == "wasteland" then
+        black = {0.5, 0.5, 0.4}     -- Dead grass
+        white = {0.6, 0.5, 0.4}     -- Dusty soil
+        endColor = {0.3, 0.3, 0.2}  -- Barren cracked land
+    elseif biome == "taiga" then
+        black = {0.4, 0.5, 0.4}     -- Conifer green
+        white = {0.6, 0.7, 0.5}     -- Forest floor
+        endColor = {0.3, 0.4, 0.3}  -- Pine shadow
+    elseif biome == "corruption" then
+        black = {0.4, 0.0, 0.6}     -- Deep purple corruption
+        white = {0.8, 0.0, 1.0}     -- Bright magenta energy
+        endColor = {0.6, 0.0, 0.9}  -- Dark magic
+    elseif biome == "candyland" then
+        black = {0.9, 0.5, 0.9}     -- Cotton candy pink
+        white = {0.5, 0.9, 1.0}     -- Blue raspberry
+        endColor = {1.0, 1.0, 1.0}  -- Frosted sugar
+    elseif biome == "ethereal" then
+        black = {0.6, 0.9, 1.0}     -- Light ethereal blue
+        white = {1.0, 1.0, 0.8}     -- Glowing light
+        endColor = {0.8, 0.6, 1.0}  -- Dreamy pastel purple
+    elseif biome == "cyberpunk" then
+        black = {0.0, 0.6, 0.9}     -- Neon blue
+        white = {1.0, 0.0, 0.6}     -- Hot pink
+        endColor = {0.2, 1.0, 1.0}  -- Electric cyan pulse
+    elseif biome == "crimson" then
+        black = {1.0, 0.0, 0.0}     -- Deep blood red
+        white = {0.7, 0.0, 0.0}     -- Fiery orange
+        endColor = {0.4, 0.0, 0.0}  -- Blood-drenched red
+    elseif biome == "vaporwave" then
+        black = {0.4, 0.0, 0.8}     -- Deep purple
+        white = {0.0, 0.8, 0.8}     -- Teal/cyan
+        endColor = {1.0, 0.7, 1.0}  -- Bubblegum nostalgia
+    elseif biome == "neon" then
+        black = {0.0, 1.0, 0.0}     -- Electric green
+        white = {1.0, 1.0, 0.0}     -- Bright yellow
+        endColor = {1.0, 0.0, 1.0}  -- Bright pink zap
+    elseif biome == "toxic" then
+        black = {0.2, 0.8, 0.0}     -- Toxic green
+        white = {0.9, 1.0, 0.0}     -- Radioactive yellow
+        endColor = {0.1, 0.6, 0.0}  -- 	Oozing slime base
+    elseif biome == "glitch" then
+        black = {0.0, 0.0, 0.0}     -- Black void
+        white = {1.0, 0.0, 1.0}     -- Hot magenta
+        endColor = {0.0, 1.0, 1.0}  -- Broken cyan pixel flash
+    elseif biome == "underdark" then
+        black = {0.2, 0.0, 0.3}     -- Deep underworld purple
+        white = {0.5, 0.0, 0.8}     -- Glowing arcane energy
+        endColor = {0.1, 0.0, 0.2}  -- Abyss shadow deep
+    else
+        black = {0.27, 0.34, 0.23}  -- Default dark green
+        white = {0.45, 0.41, 0.26}  -- Default light brown/tan
+        endColor = {0.3, 0.45, 0.15}-- Mossy green
+    end
 
     for i = 1, 8 do
-        local t = (i - 1) / 7.0
-        local r, g, b
+		local t = (i - 1) / 7.0
+		local r, g, b
 
-        if t < 0.5 then
-            local t2 = t / 0.5
-            r = black[1] * (1 - t2) + white[1] * t2
-            g = black[2] * (1 - t2) + white[2] * t2
-            b = black[3] * (1 - t2) + white[3] * t2
-        else
-            local t2 = (t - 0.5) / 0.5
-            r = white[1] * (1 - t2) + endColor[1] * t2
-            g = white[2] * (1 - t2) + endColor[2] * t2
-            b = white[3] * (1 - t2) + endColor[3] * t2
-        end
+		if t < 0.5 then
+			-- Interpolate from black to white
+			local t2 = t / 0.5
+			r = black[1] * (1 - t2) + white[1] * t2
+			g = black[2] * (1 - t2) + white[2] * t2
+			b = black[3] * (1 - t2) + white[3] * t2
+		else
+			-- Interpolate from white to end
+			local t2 = (t - 0.5) / 0.5
+			r = white[1] * (1 - t2) + endColor[1] * t2
+			g = white[2] * (1 - t2) + endColor[2] * t2
+			b = white[3] * (1 - t2) + endColor[3] * t2
+		end
 
-        CreateMaterial("unphysical", r, g, b, 1, 0, 0.2)
-    end
+		CreateMaterial("unphysical", r, g, b, 1, 0, 0.2)
+	end
 end
 
 function initDefault()
@@ -602,7 +442,7 @@ function initCanyon()
     CreateMaterial("dirt", 0.7, 0.5, 0.3, 1, 0, 0.1) -- canyon soil
     CreateMaterial("unphysical", 0.9, 0.6, 0.3, 1, 0, 0.2) -- orange sandstone
     CreateMaterial("unphysical", 0.7, 0.4, 0.2, 1, 0, 0.2) -- red rock
-	CreateMaterial("unphysical", 1.0, 0.7, 0.5, 1, 0, 0.2)
+	CreateMaterial("unphysical",  1, 0, 0.2)
     CreateMaterial("masonry", 0.8, 0.5, 0.3, 1, 0, 0.4) -- striated rock layers
 
     -- Call to create grass gradient
@@ -614,7 +454,7 @@ function initMushroom()
     CreateMaterial("dirt", 0.4, 0.3, 0.4, 1, 0, 0.1) -- dark mycelium dirt
     CreateMaterial("unphysical", 0.5, 0.3, 0.5, 1, 0, 0.2) -- purple mushroom surface
     CreateMaterial("unphysical", 0.8, 0.5, 0.8, 1, 0, 0.2) -- pink spores
-	CreateMaterial("unphysical", 0.3, 0.2, 0.3, 1, 0, 0.2)
+	CreateMaterial("unphysical", 1.0, 0.7, 0.5, 1, 0, 0.2)
     CreateMaterial("masonry", 0.6, 0.4, 0.6, 1, 0, 0.4) -- mushroom stems
 
     -- Call to create grass gradient
