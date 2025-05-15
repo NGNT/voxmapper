@@ -214,49 +214,50 @@ class TextureGenerator:
 
     def generate_shape_noise(self, size, shape_type="circle", shape_size=10, spacing=5):
         """
-        Generate shape-based noise.
+        Vectorized generation of shape-based noise.
 
         Args:
-            size (int): The size of the noise grid (size x size).
-            shape_type (str): The type of shape ("circle", "square", "pyramid").
-            shape_size (int): The size of each shape.
-            spacing (int): The spacing between shapes.
+            size (int): Output resolution (square)
+            shape_type (str): "circle", "square", "pyramid"
+            shape_size (int): Size of each shape
+            spacing (int): Space between shapes
 
         Returns:
-            np.ndarray: A 2D array representing the shape noise.
+            np.ndarray: 2D float32 array with shape intensity
         """
         noise = np.zeros((size, size), dtype=np.float32)
+        yy, xx = np.meshgrid(np.arange(size), np.arange(size), indexing='ij')
 
-        for y in range(0, size, shape_size + spacing):
-            for x in range(0, size, shape_size + spacing):
+        for y0 in range(0, size, shape_size + spacing):
+            for x0 in range(0, size, shape_size + spacing):
                 if shape_type == "circle":
-                    self._draw_circle(noise, x, y, shape_size)
+                    diameter = shape_size * 2
+                    cy, cx = np.ogrid[:diameter, :diameter]
+                    circle_mask = (cx - shape_size)**2 + (cy - shape_size)**2 <= shape_size**2
+
+                    for y0 in range(0, size, shape_size + spacing):
+                        for x0 in range(0, size, shape_size + spacing):
+                            y1, y2 = y0, min(y0 + diameter, size)
+                            x1, x2 = x0, min(x0 + diameter, size)
+                            mask_slice_y = slice(0, y2 - y1)
+                            mask_slice_x = slice(0, x2 - x1)
+
+                            noise[y1:y2, x1:x2][circle_mask[mask_slice_y, mask_slice_x]] = 1.0
                 elif shape_type == "square":
-                    self._draw_square(noise, x, y, shape_size)
+                    x_start = max(0, x0 - shape_size // 2)
+                    x_end = min(size, x0 + shape_size // 2)
+                    y_start = max(0, y0 - shape_size // 2)
+                    y_end = min(size, y0 + shape_size // 2)
+                    noise[y_start:y_end, x_start:x_end] = 1.0
                 elif shape_type == "pyramid":
-                    self._draw_pyramid(noise, x, y, shape_size)
-
+                    half = shape_size // 2
+                    for dy in range(-half, half + 1):
+                        for dx in range(-half, half + 1):
+                            px, py = x0 + dx, y0 + dy
+                            if 0 <= px < size and 0 <= py < size:
+                                height = max(0, half - max(abs(dx), abs(dy)))
+                                noise[py, px] = max(noise[py, px], height / half if half else 1.0)
         return noise
-
-    def _draw_circle(self, noise, cx, cy, radius):
-        for y in range(noise.shape[0]):
-            for x in range(noise.shape[1]):
-                if (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2:
-                    noise[y, x] = 1.0
-
-    def _draw_square(self, noise, cx, cy, size):
-        half_size = size // 2
-        x_start, x_end = max(0, cx - half_size), min(noise.shape[1], cx + half_size)
-        y_start, y_end = max(0, cy - half_size), min(noise.shape[0], cy + half_size)
-        noise[y_start:y_end, x_start:x_end] = 1.0
-
-    def _draw_pyramid(self, noise, cx, cy, size):
-        half_size = size // 2
-        for y in range(-half_size, half_size + 1):
-            for x in range(-half_size, half_size + 1):
-                height = max(0, half_size - max(abs(x), abs(y)))
-                if 0 <= cy + y < noise.shape[0] and 0 <= cx + x < noise.shape[1]:
-                    noise[cy + y, cx + x] = height / half_size
 
 def main():
     # Example usage
