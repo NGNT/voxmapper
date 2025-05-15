@@ -230,6 +230,9 @@ class TextureGeneratorGUI:
             "image_brightness": tk.DoubleVar(value=1.0),
             "image_contrast": tk.DoubleVar(value=1.0),
             "image_gamma": tk.DoubleVar(value=1.0),
+            "green_channel_value": tk.DoubleVar(value=0.5),
+            "green_lightness": tk.DoubleVar(value=0.5),
+            "invert_green": tk.BooleanVar(value=False),
             "red_channel_weight": tk.DoubleVar(value=0.299),  # Standard RGB to grayscale weights
             "green_channel_weight": tk.DoubleVar(value=0.587),
             "blue_channel_weight": tk.DoubleVar(value=0.114),
@@ -463,6 +466,25 @@ class TextureGeneratorGUI:
         # Set a minimum width for the scrollable frame to ensure controls have enough space
         scrollable_frame.columnconfigure(0, minsize=380)
 
+        # Teardown heightmap settings
+        heightmap_frame = ttk.LabelFrame(controls_frame, text="Teardown Heightmap Settings", padding=10)
+        heightmap_frame.pack(fill="x", pady=5)
+
+        # Add noise-based grass parameters (initially hidden)
+        self.grass_noise_frame = ttk.LabelFrame(heightmap_frame, text="Grass Noise Settings", padding=5)
+        self.vars["use_noise_grass"].trace_add("write", self._toggle_grass_noise_controls)
+
+        # Create sliders for heightmap settings
+        self._create_slider(heightmap_frame, "Min Height", "min_height", -1.0, 1.0, 0.1)
+        self._create_slider(heightmap_frame, "Max Height", "max_height", 0.0, 2.0, 0.1)
+        self._create_slider(heightmap_frame, "Height Scale", "height_scale", 1, 255, 1)  # Restored Height Scale slider
+        self._create_slider(heightmap_frame, "Grass Amount", "grass_amount", 0, 255, 1)  # Restored Grass Amount slider
+        self._create_slider(self.grass_noise_frame, "Scale", "grass_noise_scale", 1.0, 200.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Octaves", "grass_noise_octaves", 1, 8, 1)
+        self._create_slider(self.grass_noise_frame, "Persistence", "grass_noise_persistence", 0.1, 1.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Density", "noise_grass_density", 0.0, 1.0, 0.01)
+        self._create_slider(heightmap_frame, "Special Value", "special_value", 0, 255, 1)  # Restored Special Value slider
+
         scrollable_frame.bind(
             "<Configure>",
             lambda e: scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
@@ -542,6 +564,13 @@ class TextureGeneratorGUI:
                                 lambda: [self.vars["landmass_seed"].set(np.random.randint(0, 1000000)), 
                                         self.update_noise_preview()],
                                 style='TButton').pack(side="right")
+
+        # Add grass type toggle (uniform vs noise-based)
+        grass_type_frame = ttk.Frame(heightmap_frame)
+        grass_type_frame.pack(fill="x", pady=2)
+        ttk.Label(grass_type_frame, text="Grass Type:").pack(side="left", padx=5)
+        ttk.Radiobutton(grass_type_frame, text="Uniform", variable=self.vars["use_noise_grass"], value=False).pack(side="left")
+        ttk.Radiobutton(grass_type_frame, text="Noise", variable=self.vars["use_noise_grass"], value=True).pack(side="left")
         
         # Apply and Generate buttons
         self.generate_button = ttk.Button(scrollable_frame, text="Generate Noise", command=self.generate_noise)
@@ -845,11 +874,19 @@ class TextureGeneratorGUI:
         red_frame = ttk.LabelFrame(left_panel, text="Red Channel", padding=10)
         red_frame.pack(fill="x", pady=10)
 
+        green_frame = ttk.LabelFrame(left_panel, text="Green Channel", padding=10)
+        green_frame.pack(fill="x", pady=10)
+
         # Add red channel sliders with delayed updates
         red_value_slider = self._create_slider(red_frame, "Red Value", "red_channel_value", 0.0, 1.0, 0.01)
         self.vars["red_channel_value"].set(0.5)  # Default to neutral value
         # Remove the trace and add release binding for the red value slider
         red_value_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
+
+        green_value_slider = self._create_slider(green_frame, "Green Value", "green_channel_value", 0.0, 1.0, 0.01)
+        self.vars["green_channel_value"].set(0.5)  # Default to neutral value
+        # Remove the trace and add release binding for the green value slider
+        green_value_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
         
         red_lightness_slider = self._create_slider(red_frame, "Lightness", "red_lightness", 0.0, 1.0, 0.01)
         self.vars["red_lightness"].set(0.5)  # Default to neutral value
@@ -1029,45 +1066,43 @@ class TextureGeneratorGUI:
             target_size = self.vars["image_size"].get()
             width, height = self.original_image.size
             aspect_ratio = width / height
-            
+
             if width > height:
                 new_width = min(target_size, 4096)
                 new_height = int(new_width / aspect_ratio)
             else:
                 new_height = min(target_size, 4096)
                 new_width = int(new_height * aspect_ratio)
-                
+
             self.imported_image = self.original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            
+
             # Create a copy of the resized image for processing
             img = self.imported_image.copy()
 
-            # Convert to numpy array for channel processing
+            # Convert to numpy array for red channel processing
             img_array = np.array(img)
-            
-            # Extract red channel and convert to float for calculations
+            rgb_array = np.zeros((img_array.shape[0], img_array.shape[1], 3), dtype=np.uint8)
+
             red_channel = img_array[:, :, 0].astype(float)
-            
-            # Invert values if checkbox is checked
             if self.vars["invert_red"].get():
                 red_channel = 255 - red_channel
-            
-            # Apply lightness (increases darker values while preserving brighter ones)
             lightness = self.vars["red_lightness"].get()
             if lightness > 0:
                 red_channel = red_channel + (255 - red_channel) * lightness
-            
-            # Scale by red value
             red_value = self.vars["red_channel_value"].get()
             red_channel = (red_channel * red_value).clip(0, 255).astype(np.uint8)
-            
-            # Create RGB image with only red values
-            height, width = red_channel.shape
-            rgb_array = np.zeros((height, width, 3), dtype=np.uint8)
-            rgb_array[:, :, 0] = red_channel  # Set red channel
-            
-            # Convert back to PIL Image
-            self.processed_image = Image.fromarray(rgb_array)
+            rgb_array[:, :, 0] = red_channel
+
+            # Convert to RGBA for overlay
+            img_rgba = Image.fromarray(rgb_array, mode="RGB").convert("RGBA")
+
+            # Create green overlay
+            alpha_val = int(self.vars["green_channel_value"].get() * 255)
+            green_overlay = Image.new('RGBA', img_rgba.size, (0, 255, 0, alpha_val))
+
+            # Composite green overlay
+            img_with_overlay = Image.alpha_composite(img_rgba, green_overlay)
+            self.processed_image = img_with_overlay.convert("RGB")
 
             # Apply Gaussian blur if set
             blur_radius = self.vars["gaussian_blur"].get()
@@ -1082,11 +1117,11 @@ class TextureGeneratorGUI:
             else:
                 preview_height = preview_size
                 preview_width = int(preview_height * aspect_ratio)
-                
+
             preview_img = self.processed_image.resize((preview_width, preview_height), Image.Resampling.LANCZOS)
             preview = ImageTk.PhotoImage(preview_img)
             self.image_preview = preview
-            
+
             # Update canvas
             self.image_canvas.delete("all")
             self.image_canvas.create_image(
