@@ -159,23 +159,41 @@ class TextureGenerator:
         self.terrain_shadow_y = -1400.0
 
     def generate_terrain(self, size, persistence, scale, seed, min_height, 
-                        sun_position=None, shadow_strength=0.5, colors=None):
+                         sun_position=None, shadow_strength=0.5, colors=None):
+        """
+        Generates a terrain heightmap with optional shadows and colors.
+
+        Args:
+            size (int): The size of the terrain (width and height).
+            persistence (float): Controls the amplitude of successive octaves.
+            scale (float): Controls the frequency of the noise.
+            seed (int): The seed for random noise generation.
+            min_height (float): The minimum height value.
+            sun_position (list): The position of the sun for shadow generation.
+            shadow_strength (float): The strength of the shadows.
+            colors (list): A list of colors for terrain coloring.
+
+        Returns:
+            PIL.Image: The generated terrain as an image.
+        """
         # Generate base heightmap
         if self.terrain_type == "mountains":
             height_data = self._generate_mountain_terrain(size, persistence, scale, seed, min_height)
-        else:
+        elif self.terrain_type == "sand":
             height_data = self._generate_sand_terrain(size, persistence, scale, seed, min_height)
-        
+        else:
+            raise ValueError(f"Unknown terrain type: {self.terrain_type}")
+
         # Generate shadow if enabled
         shadow_data = None
         if self.terrain_shadow and sun_position is not None:
             shadow_data = self._generate_shadow(size, sun_position, shadow_strength, height_data)
-        
+
         # Generate color if enabled
         color_data = None
         if self.terrain_colored and colors is not None:
             color_data = self._generate_color(size, colors, height_data)
-        
+
         # Combine all layers
         if color_data is not None and shadow_data is not None:
             final_data = (color_data * (shadow_data[:, :, np.newaxis] / 255)).astype(np.uint8)
@@ -185,79 +203,146 @@ class TextureGenerator:
             final_data = np.stack([shadow_data] * 3, axis=-1).astype(np.uint8)
         else:
             final_data = np.stack([height_data] * 3, axis=-1).astype(np.uint8)
-        
+
         return Image.fromarray(final_data)
 
+    def _generate_mountain_terrain(self, size, persistence, scale, seed, min_height):
+        """
+        Generates a heightmap for mountain terrain.
+
+        Args:
+            size (int): The size of the terrain (width and height).
+            persistence (float): Controls the amplitude of successive octaves.
+            scale (float): Controls the frequency of the noise.
+            seed (int): The seed for random noise generation.
+            min_height (float): The minimum height value.
+
+        Returns:
+            np.ndarray: A 2D array representing the heightmap.
+        """
+        noise = SimplexNoise(seed)
+        heightmap = np.zeros((size, size), dtype=np.float32)
+
+        for y in range(size):
+            for x in range(size):
+                height = noise.simplexNoise(
+                    type=NoiseTypeEnum.FRACTALNOISE,
+                    size=size,
+                    octaves=7,
+                    persistence=persistence,
+                    lacunarity=2.0,
+                    scale=scale,
+                    x=x,
+                    y=y
+                )
+                height = max(height * (1 + (1 - min_height / 4)) - min_height, 0)
+                heightmap[y, x] = height ** 2
+
+        # Normalize to [0, 255]
+        heightmap = (heightmap - heightmap.min()) / (heightmap.max() - heightmap.min()) * 255
+        return heightmap.astype(np.uint8)
+
+    def _generate_sand_terrain(self, size, persistence, scale, seed, min_height):
+        """
+        Generates a heightmap for sand terrain.
+
+        Args:
+            size (int): The size of the terrain (width and height).
+            persistence (float): Controls the amplitude of successive octaves.
+            scale (float): Controls the frequency of the noise.
+            seed (int): The seed for random noise generation.
+            min_height (float): The minimum height value.
+
+        Returns:
+            np.ndarray: A 2D array representing the heightmap.
+        """
+        noise = SimplexNoise(seed)
+        heightmap = np.zeros((size, size), dtype=np.float32)
+
+        for y in range(size):
+            for x in range(size):
+                height = noise.simplexNoise(
+                    type=NoiseTypeEnum.FRACTALNOISE,
+                    size=size,
+                    octaves=7,
+                    persistence=persistence,
+                    lacunarity=2.0,
+                    scale=scale,
+                    x=x,
+                    y=y
+                )
+                height = max(height * (1 + (1 - min_height / 4)) - min_height, 0)
+                heightmap[y, x] = height ** 2
+
+        # Normalize to [0, 255]
+        heightmap = (heightmap - heightmap.min()) / (heightmap.max() - heightmap.min()) * 255
+        return heightmap.astype(np.uint8)
+
+    def _generate_shadow(self, size, sun_position, shadow_strength, height_data):
+        """
+        Generates shadows for the terrain based on the sun position.
+
+        Args:
+            size (int): The size of the terrain (width and height).
+            sun_position (list): The position of the sun [x, y, z].
+            shadow_strength (float): The strength of the shadows.
+            height_data (np.ndarray): The heightmap data.
+
+        Returns:
+            np.ndarray: A 2D array representing the shadow map.
+        """
+        shadow_map = np.full((size, size), 255, dtype=np.uint8)
+        sun_x, sun_y, sun_z = sun_position
+
+        for y in range(size):
+            for x in range(size):
+                dx = x - sun_x
+                dy = y - sun_y
+                dz = sun_z - height_data[y, x]
+
+                if dx == 0 and dy == 0:
+                    continue
+
+                distance = math.sqrt(dx ** 2 + dy ** 2)
+                shadow = max(0, 255 - shadow_strength * (dz / distance))
+                shadow_map[y, x] = min(shadow_map[y, x], shadow)
+
+        return shadow_map
+
     def _generate_color(self, size, colors, height_data):
+        """
+        Maps height values to colors.
+
+        Args:
+            size (int): The size of the terrain (width and height).
+            colors (list): A list of colors and their corresponding height percentages.
+            height_data (np.ndarray): The heightmap data.
+
+        Returns:
+            np.ndarray: A 3D array representing the colored terrain.
+        """
         color_data = np.zeros((size, size, 3), dtype=np.uint8)
-        
+
         for y in range(size):
             for x in range(size):
                 v = height_data[y, x] / 255
-                
+
                 if colors[0][1] > v:
                     color_data[y, x] = colors[0][0]
                 else:
                     for col in range(1, len(colors)):
                         if colors[col][1] > v:
-                            per = 1 - (v - colors[col-1][1]) / (colors[min(col, len(colors)-1)][1] - colors[col-1][1])
+                            per = 1 - (v - colors[col - 1][1]) / (colors[col][1] - colors[col - 1][1])
                             color_data[y, x] = (
-                                per * np.array(colors[col-1][0]) + 
-                                (1.0-per) * np.array(colors[min(col, len(colors)-1)][0])
+                                per * np.array(colors[col - 1][0]) +
+                                (1.0 - per) * np.array(colors[col][0])
                             ).astype(np.uint8)
                             break
-                
+
                 if v > colors[-1][1]:
                     color_data[y, x] = colors[-1][0]
-        
+
         return color_data
-
-    def generate_shape_noise(self, size, shape_type="circle", shape_size=10, spacing=5):
-        """
-        Vectorized generation of shape-based noise.
-
-        Args:
-            size (int): Output resolution (square)
-            shape_type (str): "circle", "square", "pyramid"
-            shape_size (int): Size of each shape
-            spacing (int): Space between shapes
-
-        Returns:
-            np.ndarray: 2D float32 array with shape intensity
-        """
-        noise = np.zeros((size, size), dtype=np.float32)
-        yy, xx = np.meshgrid(np.arange(size), np.arange(size), indexing='ij')
-
-        for y0 in range(0, size, shape_size + spacing):
-            for x0 in range(0, size, shape_size + spacing):
-                if shape_type == "circle":
-                    diameter = shape_size * 2
-                    cy, cx = np.ogrid[:diameter, :diameter]
-                    circle_mask = (cx - shape_size)**2 + (cy - shape_size)**2 <= shape_size**2
-
-                    for y0 in range(0, size, shape_size + spacing):
-                        for x0 in range(0, size, shape_size + spacing):
-                            y1, y2 = y0, min(y0 + diameter, size)
-                            x1, x2 = x0, min(x0 + diameter, size)
-                            mask_slice_y = slice(0, y2 - y1)
-                            mask_slice_x = slice(0, x2 - x1)
-
-                            noise[y1:y2, x1:x2][circle_mask[mask_slice_y, mask_slice_x]] = 1.0
-                elif shape_type == "square":
-                    x_start = max(0, x0 - shape_size // 2)
-                    x_end = min(size, x0 + shape_size // 2)
-                    y_start = max(0, y0 - shape_size // 2)
-                    y_end = min(size, y0 + shape_size // 2)
-                    noise[y_start:y_end, x_start:x_end] = 1.0
-                elif shape_type == "pyramid":
-                    half = shape_size // 2
-                    for dy in range(-half, half + 1):
-                        for dx in range(-half, half + 1):
-                            px, py = x0 + dx, y0 + dy
-                            if 0 <= px < size and 0 <= py < size:
-                                height = max(0, half - max(abs(dx), abs(dy)))
-                                noise[py, px] = max(noise[py, px], height / half if half else 1.0)
-        return noise
 
 def main():
     # Example usage

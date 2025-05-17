@@ -149,7 +149,7 @@ class ModernStyle:
 class TextureGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("voxmapper v1.4")
+        self.root.title("voxmapper v1.4.1")
         self.root.geometry("1350x1050")
         
 
@@ -176,13 +176,12 @@ class TextureGeneratorGUI:
         self.notebook = ttk.Notebook(self.main_frame)
         self.notebook.pack(fill="both", expand=True)
         
-        # Create noise tab
-        self.noise_tab = ttk.Frame(self.notebook)
-        self.notebook.add(self.noise_tab, text="Noise Generation")
+        # Create mountain generation tab
+        self.mountain_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.mountain_tab, text="Mountain Generation")
         
         self.vars = {
             "noise_size": tk.IntVar(value=512),
-            "persistence": tk.DoubleVar(value=0.6),
             "scale": tk.DoubleVar(value=150.0),
             "seed": tk.IntVar(value=42),
             "min_height": tk.DoubleVar(value=1.0),  # Changed to tk.DoubleVar
@@ -190,6 +189,7 @@ class TextureGeneratorGUI:
             "noise_type": tk.StringVar(value="perlin noise"),
             "octaves": tk.IntVar(value=7),
             "lacunarity": tk.DoubleVar(value=2.0),
+            "persistence": tk.DoubleVar(value=0.6),
             "height_scale": tk.IntVar(value=255),
             "grass_amount": tk.IntVar(value=0),
             "special_value": tk.IntVar(value=0),
@@ -221,12 +221,6 @@ class TextureGeneratorGUI:
             "grass_noise_persistence": tk.DoubleVar(value=0.5),  # Persistence for grass noise
             "grass_density": tk.DoubleVar(value=0.5),       # Grass density threshold for noise-based grass
             "noise_grass_density": tk.DoubleVar(value=0.5),  # Grass density threshold for noise-based grass
-            "shape_type": tk.StringVar(value="circle"),
-            "shape_size": tk.IntVar(value=10),
-            "shape_spacing": tk.IntVar(value=5),
-            "shape_min_height": tk.DoubleVar(value=0.0),
-            "shape_max_height": tk.DoubleVar(value=1.0),
-            "shape_export_size": tk.IntVar(value=512),  # default 512x512
             "image_brightness": tk.DoubleVar(value=1.0),
             "image_contrast": tk.DoubleVar(value=1.0),
             "image_gamma": tk.DoubleVar(value=1.0),
@@ -259,9 +253,6 @@ class TextureGeneratorGUI:
         self.image_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.image_tab, text="Image Import")
         self._create_image_import_tab()
-
-        # Create shapes tab
-        self._create_shapes_tab()
         
         # Initial preview update
         self.update_noise_preview()
@@ -437,7 +428,7 @@ class TextureGeneratorGUI:
             header_canvas.create_text(200, gradient_height//2 - 15, text="VOXMAPPER", 
                                     fill=ACCENT_COLOR, font=("Arial", 36, "bold"), 
                                     anchor="w")
-            header_canvas.create_text(200, gradient_height//2 + 15, text="v1.4 by NGNT", 
+            header_canvas.create_text(200, gradient_height//2 + 15, text="v1.4.1 by NGNT", 
                                     fill=TEXT_COLOR, font=("Arial", 16), 
                                     anchor="w")
             
@@ -454,37 +445,20 @@ class TextureGeneratorGUI:
         return header_frame
 
     def _create_noise_controls(self):
+        """Creates the controls panel for the noise generation tab."""
         # Create left panel for controls
-        controls_frame = ttk.Frame(self.noise_tab)
-        controls_frame.pack(side="left", fill="y", padx=10)
+        left_panel = ttk.Frame(self.mountain_tab)
+        left_panel.pack(side="left", fill="y", padx=10, pady=10)
 
         # Make the controls frame scrollable
-        scroll_canvas = tk.Canvas(controls_frame, borderwidth=0, highlightthickness=0, bg=BACKGROUND_COLOR, width=400)
-        scrollbar = ttk.Scrollbar(controls_frame, orient="vertical", command=scroll_canvas.yview)
+        scroll_canvas = tk.Canvas(left_panel, borderwidth=0, highlightthickness=0, bg=BACKGROUND_COLOR, width=400)
+        scrollbar = ttk.Scrollbar(left_panel, orient="vertical", command=scroll_canvas.yview)
         scrollable_frame = ttk.Frame(scroll_canvas, style="TFrame")
 
         # Set a minimum width for the scrollable frame to ensure controls have enough space
         scrollable_frame.columnconfigure(0, minsize=380)
 
-        # Teardown heightmap settings
-        heightmap_frame = ttk.LabelFrame(controls_frame, text="Teardown Heightmap Settings", padding=10)
-        heightmap_frame.pack(fill="x", pady=5)
-
-        # Add noise-based grass parameters (initially hidden)
-        self.grass_noise_frame = ttk.LabelFrame(heightmap_frame, text="Grass Noise Settings", padding=5)
-        self.vars["use_noise_grass"].trace_add("write", self._toggle_grass_noise_controls)
-
-        # Create sliders for heightmap settings
-        self._create_slider(heightmap_frame, "Min Height", "min_height", -1.0, 1.0, 0.1)
-        self._create_slider(heightmap_frame, "Max Height", "max_height", 0.0, 2.0, 0.1)
-        self._create_slider(heightmap_frame, "Height Scale", "height_scale", 1, 255, 1)  # Restored Height Scale slider
-        self._create_slider(heightmap_frame, "Grass Amount", "grass_amount", 0, 255, 1)  # Restored Grass Amount slider
-        self._create_slider(self.grass_noise_frame, "Scale", "grass_noise_scale", 1.0, 200.0, 0.1)
-        self._create_slider(self.grass_noise_frame, "Octaves", "grass_noise_octaves", 1, 8, 1)
-        self._create_slider(self.grass_noise_frame, "Persistence", "grass_noise_persistence", 0.1, 1.0, 0.1)
-        self._create_slider(self.grass_noise_frame, "Density", "noise_grass_density", 0.0, 1.0, 0.01)
-        self._create_slider(heightmap_frame, "Special Value", "special_value", 0, 255, 1)  # Restored Special Value slider
-
+        # Configure scrolling
         scrollable_frame.bind(
             "<Configure>",
             lambda e: scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
@@ -496,9 +470,9 @@ class TextureGeneratorGUI:
         scroll_canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        # Basic settings
+        # Group 1: Basic Settings
         basic_frame = ttk.LabelFrame(scrollable_frame, text="Basic Settings", padding=10)
-        basic_frame.pack(fill="x", pady=5)
+        basic_frame.pack(fill="x", pady=10)
 
         # Noise type selection
         noise_type_frame = ttk.Frame(basic_frame)
@@ -510,53 +484,93 @@ class TextureGeneratorGUI:
         noise_combo.pack(side="left", padx=5)
         noise_combo.bind("<<ComboboxSelected>>", lambda e: [self._toggle_landmass_controls(), self.update_noise_preview()])
 
-        # Seed entry
-        seed_frame = ttk.Frame(basic_frame)
-        seed_frame.pack(fill="x", pady=5)
-        ttk.Label(seed_frame, text="Seed:").pack(side="left")
-        seed_entry = ttk.Entry(seed_frame, textvariable=self.vars["seed"], width=15)
-        seed_entry.pack(side="left", padx=5)
-        seed_entry.bind("<Return>", lambda e: self.update_noise_preview())
-        self._create_styled_button(seed_frame, "Random", 
-                                lambda: [self.vars["seed"].set(np.random.randint(0, 1000000)), 
-                                        self.update_noise_preview()],
-                                style='TButton').pack(side="right")
-
-        # Size slider
+        # Size and scale sliders
         self._create_slider(basic_frame, "Size", "noise_size", 64, 4096, 64).bind("<ButtonRelease-1>", lambda e: self._on_size_change())
         self._create_slider(basic_frame, "Scale", "scale", 1.0, 500.0, 1.0)
-        self._create_slider(basic_frame, "Persistence", "persistence", 0.1, 1.0, 0.01)
+        self._create_slider(basic_frame, "Seed", "seed", 1.0, 500.0, 1.0)
 
-        ttk.Button(basic_frame, text="Reset Zoom", command=self._reset_view).pack(fill="x", pady=5)
+        # Reset view button
+        ttk.Button(basic_frame, text="Reset View", command=self._reset_view).pack(fill="x", pady=5)
 
-        vignette_frame = ttk.LabelFrame(scrollable_frame, text="Vignette Settings", padding=10)
-        vignette_frame.pack(fill="x", pady=5)
-        self._create_slider(vignette_frame, "Strength", "vignette_strength", 0.0, 1.0, 0.01)
-        self._create_slider(vignette_frame, "Radius", "vignette_radius", 0.0, 1.0, 0.01)
-        self._create_slider(vignette_frame, "Smoothness", "vignette_smoothness", 0.0, 1.0, 0.01)
+        # Group 2: Teardown Heightmap Settings
+        heightmap_frame = ttk.LabelFrame(scrollable_frame, text="Teardown Heightmap Settings", padding=10)
+        heightmap_frame.pack(fill="x", pady=10)
 
+        self._create_slider(heightmap_frame, "Min Height", "min_height", -1.0, 1.0, 0.1)
+        self._create_slider(heightmap_frame, "Max Height", "max_height", 0.0, 2.0, 0.1)
+        self._create_slider(heightmap_frame, "Height Scale", "height_scale", 1, 255, 1)
+        self._create_slider(heightmap_frame, "Grass Amount", "grass_amount", 0, 255, 1)
+        self._create_slider(heightmap_frame, "Special Value", "special_value", 0, 255, 1)
+
+        # Add grass type toggle (uniform vs noise-based)
+        grass_type_frame = ttk.Frame(heightmap_frame)
+        grass_type_frame.pack(fill="x", pady=5)
+        ttk.Label(grass_type_frame, text="Grass Type:").pack(side="left", padx=5)
+        ttk.Radiobutton(grass_type_frame, text="Uniform", variable=self.vars["use_noise_grass"], value=False).pack(side="left")
+        ttk.Radiobutton(grass_type_frame, text="Noise", variable=self.vars["use_noise_grass"], value=True).pack(side="left")
+
+        # Add noise-based grass parameters (initially hidden)
+        self.grass_noise_frame = ttk.LabelFrame(heightmap_frame, text="Grass Noise Settings", padding=10)
+        self.vars["use_noise_grass"].trace_add("write", self._toggle_grass_noise_controls)
+
+        self._create_slider(self.grass_noise_frame, "Scale", "grass_noise_scale", 1.0, 200.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Octaves", "grass_noise_octaves", 1, 8, 1)
+        self._create_slider(self.grass_noise_frame, "Persistence", "grass_noise_persistence", 0.1, 1.0, 0.1)
+        self._create_slider(self.grass_noise_frame, "Density", "noise_grass_density", 0.0, 1.0, 0.01)
+
+        # Group 3: Noise Algorithm Settings
         noise_settings_frame = ttk.LabelFrame(scrollable_frame, text="Noise Algorithm Settings", padding=10)
-        noise_settings_frame.pack(fill="x", pady=5)
+        noise_settings_frame.pack(fill="x", pady=10)
 
         # Store reference to noise settings frame
         self.noise_settings_frame = noise_settings_frame
 
         self._create_slider(noise_settings_frame, "Octaves", "octaves", 1, 10, 1)
         self._create_slider(noise_settings_frame, "Lacunarity", "lacunarity", 1.0, 4.0, 0.1)
+        self._create_slider(noise_settings_frame, "Persistence", "persistence", 0.1, 1.0, 0.01)
 
-        # Landmass Settings
+        # Group 4: Canyon Settings (new)
+        canyon_frame = ttk.LabelFrame(scrollable_frame, text="Canyon Settings", padding=10)
+        canyon_frame.pack(fill="x", pady=10)
+        self.vars["canyon_strength"] = tk.DoubleVar(value=0.0)
+        self.vars["canyon_length"] = tk.DoubleVar(value=0.7)
+        self.vars["canyon_branch_density"] = tk.DoubleVar(value=0.15)  # Default branch density
+        self.vars["canyon_count"] = tk.IntVar(value=6)  # Default canyon count (6 per edge)
+        self.vars["canyon_seed"] = tk.IntVar(value=42)  # Add canyon-specific seed
+        self._create_slider(canyon_frame, "Canyon Intensity", "canyon_strength", 0.0, 1.0, 0.05)
+        self._create_slider(canyon_frame, "Canyon Length", "canyon_length", 0.3, 0.9, 0.05)
+        self._create_slider(canyon_frame, "Branch Density", "canyon_branch_density", 0.0, 0.5, 0.01)
+        self._create_slider(canyon_frame, "Canyon Count", "canyon_count", 1, 15, 1)
+        self._create_slider(canyon_frame, "Canyon Seed", "canyon_seed", 1, 1000, 1)
+
+        # Add a random seed button for canyon seeds
+        canyon_seed_btn_frame = ttk.Frame(canyon_frame)
+        canyon_seed_btn_frame.pack(fill="x", pady=5)
+        self._create_styled_button(canyon_seed_btn_frame, "Random Canyon Seed", 
+                                  lambda: [self.vars["canyon_seed"].set(np.random.randint(1, 1000)), 
+                                          self.update_noise_preview()],
+                                  style='TButton')
+
+        # Group 5: Vignette Settings
+        vignette_frame = ttk.LabelFrame(scrollable_frame, text="Vignette Effect", padding=10)
+        vignette_frame.pack(fill="x", pady=10)
+        self._create_slider(vignette_frame, "Strength", "vignette_strength", 0.0, 1.0, 0.01)
+        self._create_slider(vignette_frame, "Radius", "vignette_radius", 0.0, 1.0, 0.01)
+        self._create_slider(vignette_frame, "Smoothness", "vignette_smoothness", 0.0, 1.0, 0.01)
+
+        # Group 6: Landmass Settings (this will be toggled based on noise type)
         self.landmass_controls_frame = ttk.LabelFrame(scrollable_frame, text="Landmass Settings", padding=10)
 
         self._create_slider(self.landmass_controls_frame, "Landmass Size", "landmass_size", 64, 2048, 64)
         self._create_slider(self.landmass_controls_frame, "Land Proportion", "landmass_land_proportion", 0.0, 1.0, 0.01)
         self._create_slider(self.landmass_controls_frame, "Plain Factor", "landmass_plain_factor", 1.0, 5.0, 0.1)
         self._create_slider(self.landmass_controls_frame, "Shore Height", "landmass_shore_height", 0.0, 0.2, 0.01)
-        self._create_slider(self.landmass_controls_frame, "Noise Scale (Landmass)", "landmass_noise_scale", 1.0, 1000.0, 1.0)
-        self._create_slider(self.landmass_controls_frame, "Octaves (Landmass)", "landmass_octaves", 1, 16, 1)
+        self._create_slider(self.landmass_controls_frame, "Noise Scale", "landmass_noise_scale", 1.0, 1000.0, 1.0)
+        self._create_slider(self.landmass_controls_frame, "Octaves", "landmass_octaves", 1, 16, 1)
 
         landmass_seed_frame = ttk.Frame(self.landmass_controls_frame)
         landmass_seed_frame.pack(fill="x", pady=5)
-        ttk.Label(landmass_seed_frame, text="Seed (Landmass)").pack(side="left")
+        ttk.Label(landmass_seed_frame, text="Seed:").pack(side="left")
         landmass_seed_entry = ttk.Entry(landmass_seed_frame, textvariable=self.vars["landmass_seed"])
         landmass_seed_entry.pack(side="left", padx=5)
         landmass_seed_entry.bind("<Return>", lambda e: self.update_noise_preview()) 
@@ -565,21 +579,471 @@ class TextureGeneratorGUI:
                                         self.update_noise_preview()],
                                 style='TButton').pack(side="right")
 
-        # Add grass type toggle (uniform vs noise-based)
-        grass_type_frame = ttk.Frame(heightmap_frame)
-        grass_type_frame.pack(fill="x", pady=2)
-        ttk.Label(grass_type_frame, text="Grass Type:").pack(side="left", padx=5)
-        ttk.Radiobutton(grass_type_frame, text="Uniform", variable=self.vars["use_noise_grass"], value=False).pack(side="left")
-        ttk.Radiobutton(grass_type_frame, text="Noise", variable=self.vars["use_noise_grass"], value=True).pack(side="left")
-        
-        # Apply and Generate buttons
-        self.generate_button = ttk.Button(scrollable_frame, text="Generate Noise", command=self.generate_noise)
-        self.generate_button.pack(fill="x", pady=10)
+        # Group 7: Action Buttons
+        button_frame = ttk.Frame(scrollable_frame)
+        button_frame.pack(fill="x", pady=10)
 
-        self.generate_greyscale_button = ttk.Button(scrollable_frame, text="Generate Greyscale Heightmap", command=self.generate_greyscale_heightmap)
+        self.generate_button = ttk.Button(button_frame, text="Generate Heightmap", command=self.generate_noise)
+        self.generate_button.pack(fill="x", pady=5)
+
+        self.generate_greyscale_button = ttk.Button(button_frame, text="Generate Greyscale Heightmap", 
+                                               command=self.generate_greyscale_heightmap)
         self.generate_greyscale_button.pack(fill="x", pady=5)
 
+        # Initially toggle landmass controls
         self._toggle_landmass_controls()
+
+    def _create_noise_preview(self):
+        """Creates the preview panel for the noise generation tab."""
+        # Create preview frame on the right side
+        preview_frame = ttk.Frame(self.mountain_tab)
+        preview_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    
+        # Add a title for the preview section
+        preview_title = ttk.Label(preview_frame, text="NOISE PREVIEW", 
+                                font=("Segoe UI", 12, "bold"))
+        preview_title.pack(side="top", pady=(0, 10))
+    
+        # Add zoom and position indicators
+        info_frame = ttk.Frame(preview_frame)
+        info_frame.pack(side="top", fill="x", pady=(0, 5))
+    
+        # Position indicator
+        pos_frame = ttk.Frame(info_frame)
+        pos_frame.pack(side="left", fill="x", expand=True)
+        ttk.Label(pos_frame, text="Position:").pack(side="left")
+        self.position_label = ttk.Label(pos_frame, text="Center")
+        self.position_label.pack(side="left", padx=5)
+    
+        # Zoom indicator
+        zoom_frame = ttk.Frame(info_frame)
+        zoom_frame.pack(side="right")
+        ttk.Label(zoom_frame, text="Zoom:").pack(side="left")
+        self.zoom_label = ttk.Label(zoom_frame, text="100%")
+        self.zoom_label.pack(side="left", padx=5)
+    
+        # Create the canvas for the preview
+        self.noise_preview_canvas = self._create_styled_canvas(preview_frame, width=600, height=600)
+    
+        # Bind mouse events for panning
+        self.noise_preview_canvas.bind("<ButtonPress-1>", self._on_canvas_click)
+        self.noise_preview_canvas.bind("<B1-Motion>", self._on_canvas_drag)
+    
+        # Add zoom controls
+        zoom_controls = ttk.Frame(preview_frame)
+        zoom_controls.pack(side="top", pady=5)
+    
+        # Zoom buttons
+        zoom_out_btn = ttk.Button(zoom_controls, text="-", width=3, 
+                                command=lambda: [self.vars["scale"].set(max(1.0, self.vars["scale"].get() - 10.0)), 
+                                                self.update_noise_preview()])
+        zoom_out_btn.pack(side="left", padx=2)
+    
+        zoom_reset_btn = ttk.Button(zoom_controls, text="Reset", 
+                                  command=self._reset_view)
+        zoom_reset_btn.pack(side="left", padx=10)
+    
+        zoom_in_btn = ttk.Button(zoom_controls, text="+", width=3, 
+                               command=lambda: [self.vars["scale"].set(min(500.0, self.vars["scale"].get() + 10.0)), 
+                                               self.update_noise_preview()])
+        zoom_in_btn.pack(side="left", padx=2)
+    
+        # Add help text
+        ttk.Label(preview_frame, text="Click and drag to pan. Use zoom buttons or mouse wheel to zoom.", 
+                foreground="#95a5a6", font=("Segoe UI", 8)).pack(side="top", pady=(5, 0))
+    
+        # Bind mouse wheel for zooming
+        self.noise_preview_canvas.bind("<MouseWheel>", self._on_mouse_wheel)
+        # For Linux/Mac
+        self.noise_preview_canvas.bind("<Button-4>", lambda e: self._on_mouse_wheel(e, 120))
+        self.noise_preview_canvas.bind("<Button-5>", lambda e: self._on_mouse_wheel(e, -120))
+
+    def _on_size_change(self):
+        # Get the current size and the new size
+        old_size = getattr(self, "current_size", self.vars["noise_size"].get())
+        new_size = self.vars["noise_size"].get()
+
+        # Calculate the scaling factor
+        scale_factor = new_size / old_size
+
+        # Get the canvas dimensions
+        canvas_width, canvas_height = 600, 600
+
+        # Calculate the current focus point in terms of the heightmap
+        focus_x = getattr(self, "focus_x", 0.5) * old_size
+        focus_y = getattr(self, "focus_y", 0.5) * old_size
+
+        # Adjust the focus point to keep the canvas center consistent
+        canvas_center_x = canvas_width / 2
+        canvas_center_y = canvas_height / 2
+
+        focus_x = (focus_x + canvas_center_x * (scale_factor - 1)) / new_size
+        focus_y = (focus_y + canvas_center_y * (scale_factor - 1)) / new_size
+
+        # Update the focus point
+        self.focus_x = max(0.0, min(1.0, focus_x))
+        self.focus_y = max(0.0, min(1.0, focus_y))
+
+        # Update the current size
+        self.current_size = new_size
+
+        # Update the preview
+        self.update_noise_preview()
+
+    def _reset_view(self):
+        """Reset the view to default position and scale."""
+        self.focus_x = 0.5
+        self.focus_y = 0.5
+        self.vars["scale"].set(150.0)  # Reset to default scale
+        self._update_position_indicator()  # Update position indicator
+        self.update_noise_preview()
+        
+    def _adjust_zoom(self, direction):
+        """Adjust zoom level."""
+        current_scale = self.vars["scale"].get()
+        if direction > 0:
+            # Zoom in (increase scale value)
+            new_scale = min(500.0, current_scale * 1.25)
+        else:
+            # Zoom out (decrease scale value)
+            new_scale = max(1.0, current_scale * 0.8)
+
+        self.vars["scale"].set(new_scale)
+    
+        # Update the zoom indicator
+        zoom_percentage = int(150.0 / new_scale * 100)  # Calculate zoom percentage based on default scale
+        self.zoom_label.config(text=f"{zoom_percentage}%")
+    
+        self.update_noise_preview()
+        
+    def _on_mouse_wheel(self, event, delta=None):
+        """Handle mouse wheel events for zooming."""
+        if delta is None:
+            delta = event.delta
+        
+        if delta > 0:
+            self._adjust_zoom(1)  # Zoom in
+        else:
+            self._adjust_zoom(-1)  # Zoom out
+
+    def _on_canvas_click(self, event):
+        # Store the initial click position
+        self.drag_start_x = event.x
+        self.drag_start_y = event.y
+    
+        # Only store initial position, don't immediately update focus point
+        # This prevents immediate jumps in the display
+
+    def _on_canvas_drag(self, event):
+        # Calculate the exact drag distance in canvas space
+        dx = event.x - self.drag_start_x
+        dy = event.y - self.drag_start_y
+    
+        # Convert drag distance to world space movement
+        # Use floating point arithmetic to ensure smooth movement
+        canvas_width, canvas_height = 600, 600
+        world_dx = dx / canvas_width
+        world_dy = dy / canvas_height
+    
+        # Update the focus point (move in opposite direction of drag)
+        self.focus_x = max(0.0, min(1.0, getattr(self, "focus_x", 0.5) - world_dx))
+        self.focus_y = max(0.0, min(1.0, getattr(self, "focus_y", 0.5) - world_dy))
+    
+        # Update drag start to current position
+        self.drag_start_x = event.x
+        self.drag_start_y = event.y
+    
+        # Update position indicator
+        self._update_position_indicator()
+    
+        # Generate new preview with updated focus
+        self.update_noise_preview()
+
+    def _update_position_indicator(self):
+        """Update the position indicator label based on current focus point."""
+        if hasattr(self, "position_label"):
+            # Calculate position as percentage from center
+            x_percent = int((self.focus_x - 0.5) * 200)  # Convert to +/- 100% range
+            y_percent = int((self.focus_y - 0.5) * 200)
+        
+            # Format with plus sign for positive values
+            x_str = f"+{x_percent}%" if x_percent > 0 else f"{x_percent}%"
+            y_str = f"+{y_percent}%" if y_percent > 0 else f"{y_percent}%"
+        
+            position_text = f"X:{x_str}, Y:{y_str}"
+            self.position_label.config(text=position_text)
+
+    def _on_canvas_release(self, event):
+        # Finalize the drag operation (optional, can be used for cleanup)
+        pass
+
+    def generate_greyscale_heightmap(self):
+        """Generate and save the heightmap in greyscale."""
+        # Ask for save location
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png")]
+        )
+
+        if not file_path:
+            return  # User canceled
+
+        size = self.vars["noise_size"].get()
+        num_workers = multiprocessing.cpu_count()
+
+        # Capture all parameters
+        focus_x = getattr(self, "focus_x", 0.5)
+        focus_y = getattr(self, "focus_y", 0.5)
+
+        vars_dict = {k: v.get() for k, v in self.vars.items()}
+        vars_dict["focus_x"] = focus_x
+        vars_dict["focus_y"] = focus_y
+
+        # Generate noise data
+        noise_data = self._generate_full_noise_data(size, vars_dict, num_workers)
+
+        # Create greyscale heightmap
+        heightmap = self._create_heightmap(noise_data)
+
+        # Convert heightmap to greyscale (using the red channel)
+        greyscale_image = Image.fromarray(heightmap[:, :, 0])  # Use the red channel for greyscale
+
+        # Save it
+        greyscale_image.save(file_path)
+        messagebox.showinfo("Success", f"Greyscale heightmap saved to {file_path}")
+
+    def _create_heightmap(self, height_data):
+        """Create RGB heightmap from raw height data with proper canyon application."""
+        # Create RGB image with height in red channel
+        heightmap = np.zeros((height_data.shape[0], height_data.shape[1], 3), dtype=np.uint8)
+
+        # Get min and max height values
+        min_height = self.vars["min_height"].get()
+        max_height = self.vars["max_height"].get()
+
+        # Adjust height data based on min/max settings
+        if min_height != 0.0:
+            height_data = height_data + min_height
+
+        if max_height != 1.0:
+            current_max = height_data.max()
+            if current_max > 0:
+                height_data = height_data * (max_height / current_max)
+
+        # Ensure values are within valid range
+        height_data = np.clip(height_data, 0.0, 1.0)
+
+        # Get necessary parameters
+        size = height_data.shape[0]  # Assuming square heightmap
+        seed = self.vars["seed"].get()
+        canyon_strength = self.vars["canyon_strength"].get()
+        canyon_length = self.vars["canyon_length"].get()
+        canyon_branch_density = self.vars["canyon_branch_density"].get()
+        canyon_count = self.vars["canyon_count"].get()
+        canyon_seed = self.vars["canyon_seed"].get()  # Get canyon-specific seed
+        vignette_strength = self.vars["vignette_strength"].get()
+        vignette_radius = self.vars["vignette_radius"].get()
+
+        # Apply canyon effect
+        if canyon_strength > 0:
+            # Create canyon mask image using the same approach as mountain tab
+            from PIL import Image, ImageDraw, ImageFilter
+            import math
+            import multiprocessing
+    
+            canyon_img = Image.new('L', (size, size), 0)
+            draw = ImageDraw.Draw(canyon_img)
+    
+            # Fixed random generator with canyon-specific seed instead of main seed
+            fixed_rng = np.random.RandomState(canyon_seed)
+    
+            # Center point for canyons
+            cx, cy = size / 2, size / 2
+    
+            # Number of canyons per edge - now using the slider value
+            canyons_per_edge = canyon_count
+    
+            # Generate edge points
+            edge_points = []
+    
+            # Generate evenly distributed edge points with consistent randomness
+            def generate_edge_points(edge_type, count):
+                points = []
+                spacing = size / count
+        
+                if edge_type == "top":
+                    y = 0
+                    for i in range(count):
+                        offset = fixed_rng.uniform(0.2, 0.8)
+                        x = int((i + offset) * spacing)
+                        points.append((x, y))
+                elif edge_type == "bottom":
+                    y = size - 1
+                    for i in range(count):
+                        offset = fixed_rng.uniform(0.2, 0.8)
+                        x = int((i + offset) * spacing)
+                        points.append((x, y))
+                elif edge_type == "left":
+                    x = 0
+                    for i in range(count):
+                        offset = fixed_rng.uniform(0.2, 0.8)
+                        y = int((i + offset) * spacing)
+                        points.append((x, y))
+                elif edge_type == "right":
+                    x = size - 1
+                    for i in range(count):
+                        offset = fixed_rng.uniform(0.2, 0.8)
+                        y = int((i + offset) * spacing)
+                        points.append((x, y))
+                
+                return points
+    
+            # Get points from all four edges
+            edge_points.extend(generate_edge_points("top", canyons_per_edge))
+            edge_points.extend(generate_edge_points("bottom", canyons_per_edge))
+            edge_points.extend(generate_edge_points("left", canyons_per_edge))
+            edge_points.extend(generate_edge_points("right", canyons_per_edge))
+    
+            # Create arguments for parallel processing
+            worker_args = [(start_x, start_y, cx, cy, canyon_length, canyon_branch_density, canyon_seed, size) 
+                          for start_x, start_y in edge_points]
+        
+            # Use multiprocessing to generate canyon paths
+            try:
+                ctx = multiprocessing.get_context('spawn')
+                num_workers = min(ctx.cpu_count(), 4)  # Use at most 4 workers
+            
+                with ctx.Pool(processes=num_workers) as pool:
+                    canyon_paths_results = pool.map(_create_canyon_path_worker, worker_args)
+                
+                # Filter out None results
+                all_canyon_paths = [path for path in canyon_paths_results if path is not None]
+            except Exception as e:
+                # Fallback to single-process if multiprocessing fails
+                print(f"Multiprocessing error for canyons: {e}. Using single-process mode.")
+                all_canyon_paths = []
+            
+                # Process each starting point sequentially as fallback
+                for start_x, start_y in edge_points:
+                    result = _create_canyon_path_worker((start_x, start_y, cx, cy, canyon_length, 
+                                                       canyon_branch_density, canyon_seed, size))
+                    if result is not None:
+                        all_canyon_paths.append(result)
+    
+            # Now apply the actual canyon_length parameter to draw only portions of each path
+            for canyon in all_canyon_paths:
+                # Get the main path
+                path_points = canyon['main_path']
+            
+                # Calculate the actual path length based on canyon_length parameter
+                length_variation = fixed_rng.uniform(-0.05, 0.05)
+                length_ratio = canyon_length + length_variation
+                length_ratio = max(0.2, min(0.95, length_ratio))
+            
+                # Get the number of points to use based on length_ratio
+                points_to_use = max(2, int(len(path_points) * length_ratio))
+                used_path = path_points[:points_to_use]
+            
+                # Smooth the main path
+                if len(used_path) > 3:
+                    smoothed_path = []
+                    window_size = 3
+                
+                    for i in range(len(used_path)):
+                        if i < window_size // 2 or i >= len(used_path) - window_size // 2:
+                            smoothed_path.append(used_path[i])
+                        else:
+                            x_avg = sum(p[0] for p in used_path[i-window_size//2:i+window_size//2+1]) / window_size
+                            y_avg = sum(p[1] for p in used_path[i-window_size//2:i+window_size//2+1]) / window_size
+                            smoothed_path.append((int(x_avg), int(y_avg)))
+                    
+                    # Draw the main path with width scaled by canyon_strength
+                    for j in range(len(smoothed_path) - 1):
+                        progress = j / (len(smoothed_path) - 1)
+                        width = max(2, int((1.0 - progress * 0.7) * canyon_strength * 15))
+                        intensity = int(255 * (1.0 - progress * 0.2))
+                        draw.line([smoothed_path[j], smoothed_path[j+1]], 
+                                fill=intensity,
+                                width=width)
+            
+                # Now draw branches - only those that connect to the used portion of the main path
+                for branch_points in canyon['branches']:
+                    # Get the starting point of the branch
+                    branch_start = branch_points[0]
+                
+                    # Check if this branch connects to the used portion of the path
+                    # by comparing the starting point to all points in the used path
+                    is_connected = False
+                    for p in used_path:
+                        if abs(p[0] - branch_start[0]) <= 1 and abs(p[1] - branch_start[1]) <= 1:
+                            is_connected = True
+                            break
+                
+                    # Only draw branches that connect to the used path
+                    if is_connected:
+                        # Calculate how much of the branch to use based on main path length ratio
+                        branch_length_ratio = length_ratio * 1.2  # Branches can be a bit longer
+                        branch_length_ratio = min(1.0, branch_length_ratio)  # Cap at 100%
+                    
+                        # Get the points to use
+                        branch_points_to_use = max(2, int(len(branch_points) * branch_length_ratio))
+                        used_branch = branch_points[:branch_points_to_use]
+                    
+                        # Smooth the branch
+                        if len(used_branch) > 3:
+                            smoothed_branch = []
+                            window_size = 3
+                    
+                            for i in range(len(used_branch)):
+                                if i < window_size // 2 or i >= len(used_branch) - window_size // 2:
+                                    smoothed_branch.append(used_branch[i])
+                                else:
+                                    x_avg = sum(p[0] for p in used_branch[i-window_size//2:i+window_size//2+1]) / window_size
+                                    y_avg = sum(p[1] for p in used_branch[i-window_size//2:i+window_size//2+1]) / window_size
+                                    smoothed_branch.append((int(x_avg), int(y_avg)))
+                            
+                            # Draw the branch
+                            for k in range(len(smoothed_branch) - 1):
+                                prog = k / (len(smoothed_branch) - 1)
+                                branch_width = max(1, int((1.0 - prog * 0.7) * canyon_strength * 5))
+                                intensity = int(220 * (1.0 - prog * 0.3))
+                                draw.line([smoothed_branch[k], smoothed_branch[k+1]], 
+                                        fill=intensity, 
+                                        width=branch_width)
+    
+            # Apply Gaussian blur scaled with canyon_strength
+            blur_radius = max(1.0, min(3.0, size / 256 * canyon_strength * 2))
+            canyon_img = canyon_img.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+    
+            # Convert to numpy array
+            canyon_mask = np.array(canyon_img) / 255.0
+    
+            # Apply to heightmap with canyon_strength
+            height_data = height_data * (1.0 - canyon_mask * min(1.0, canyon_strength * 1.2))
+
+        # Scale to 0-255 range AFTER canyon application
+        height_scaled = (height_data * 255).astype(np.uint8)
+
+        # Apply vignette if strength > 0
+        if vignette_strength > 0:
+            height_scaled = self._apply_vignette(height_scaled, vignette_strength, vignette_radius)
+
+        # Set channels according to Teardown format
+        heightmap[:, :, 0] = height_scaled  # Red channel = height
+
+        if self.vars["use_noise_grass"].get():
+            # Generate grass noise
+            grass_noise = self._generate_grass_noise(height_data.shape[0], height_data.shape[1])
+            heightmap[:, :, 1] = grass_noise  # Green channel = grass with noise
+        else:
+            # Use uniform grass amount
+            heightmap[:, :, 1] = self.vars["grass_amount"].get()  # Green channel = grass amount
+
+        # Fill with special value
+        special_val = self.vars["special_value"].get()
+        heightmap[:, :, 2] = special_val
+
+        return heightmap
 
     def _toggle_grass_noise_controls(self, *args):
         """Toggle visibility of grass noise controls based on the use_noise_grass variable."""
@@ -591,14 +1055,32 @@ class TextureGeneratorGUI:
     def _toggle_landmass_controls(self, *args):
         """Show or hide the Landmass Settings section above the Generate buttons."""
         if self.vars["noise_type"].get() == "landmass":
-            self.landmass_controls_frame.pack(fill="x", pady=5, before=self.generate_button)
+            # Get reference to the button frame
+            button_frame = None
+            for child in self.mountain_tab.winfo_children():
+                if isinstance(child, ttk.Frame):  # Left panel
+                    for frame in child.winfo_children():
+                        if isinstance(frame, tk.Canvas):  # Scroll canvas
+                            for item in frame.winfo_children():
+                                for subitem in item.winfo_children():
+                                    if isinstance(subitem, ttk.Frame) and hasattr(subitem, 'winfo_children'):
+                                        if self.generate_button in subitem.winfo_children():
+                                            button_frame = subitem
+                                            break
+        
+            # Pack the landmass controls either before the button frame or at the end if not found
+            if button_frame:
+                self.landmass_controls_frame.pack(fill="x", pady=5, before=button_frame)
+            else:
+                # Fallback: simply pack at the end
+                self.landmass_controls_frame.pack(fill="x", pady=5)
         else:
             self.landmass_controls_frame.pack_forget()
-            
+        
         # Force update of the scrollregion after toggling controls
-        self.noise_tab.update_idletasks()
+        self.mountain_tab.update_idletasks()
         # Find the scroll_canvas by traversing the widget hierarchy
-        for child in self.noise_tab.winfo_children():
+        for child in self.mountain_tab.winfo_children():
             if isinstance(child, ttk.Frame):  # This is the controls_frame
                 for grandchild in child.winfo_children():
                     if isinstance(grandchild, tk.Canvas):  # This is the scroll_canvas
@@ -807,55 +1289,82 @@ class TextureGeneratorGUI:
         return grass_map_image
 
     def _create_grass_map_tab(self):
+        """Creates the grass map tab with controls and preview."""
         # Create the grass map tab
         self.grass_map_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.grass_map_tab, text="Grass Map")
 
-        # Create left panel for controls
-        controls_frame = ttk.Frame(self.grass_map_tab)
-        controls_frame.pack(side="left", fill="y", padx=(0, 20))
+        # Create left panel for controls with fixed width
+        left_panel = ttk.Frame(self.grass_map_tab)
+        left_panel.pack(side="left", fill="y", padx=10, pady=10)
+
+        # Group noise settings in a labeled frame
+        noise_frame = ttk.LabelFrame(left_panel, text="Noise Settings", padding=10)
+        noise_frame.pack(fill="x", pady=10)
 
         # Add sliders for grass density
         self.vars["grass_density"] = tk.DoubleVar(value=0.5)  # Default value for grass density
-        density_slider = self._create_slider(controls_frame, "Grass Density", "grass_density", 0.0, 1.0, 0.01)
+        density_slider = self._create_slider(noise_frame, "Grass Density", "grass_density", 0.0, 1.0, 0.01)
         # Override default binding to use grass map preview update
         density_slider.bind("<ButtonRelease-1>", lambda e: self.update_grass_map_preview())
 
         # Add sliders for noise amounts
-        perlin_slider = self._create_slider(controls_frame, "Perlin Noise Amount", "perlin_noise_amount", 0.0, 4.0, 0.01)
+        perlin_slider = self._create_slider(noise_frame, "Perlin Noise Amount", "perlin_noise_amount", 0.0, 4.0, 0.01)
         perlin_slider.bind("<ButtonRelease-1>", lambda e: self.update_grass_map_preview())
-        
-        simple_slider = self._create_slider(controls_frame, "Simple Noise Amount", "simple_noise_amount", 0.0, 2.0, 0.01)
+    
+        simple_slider = self._create_slider(noise_frame, "Simple Noise Amount", "simple_noise_amount", 0.0, 2.0, 0.01)
         simple_slider.bind("<ButtonRelease-1>", lambda e: self.update_grass_map_preview())
+
+        # Create appearance settings frame
+        appearance_frame = ttk.LabelFrame(left_panel, text="Appearance", padding=10)
+        appearance_frame.pack(fill="x", pady=10)
 
         # Add a slider for lightness adjustment
         self.vars["lightness"] = tk.DoubleVar(value=0.0)  # Default lightness value
-        lightness_slider = self._create_slider(controls_frame, "Lightness", "lightness", 0.0, 1.0, 0.01)  # Range from 0 (black) to 2 (white)
+        lightness_slider = self._create_slider(appearance_frame, "Lightness", "lightness", 0.0, 1.0, 0.01)
         lightness_slider.bind("<ButtonRelease-1>", lambda e: self.update_grass_map_preview())
 
-        # Add a button to export the grass map
-        ttk.Button(controls_frame, text="Export Grass Map", command=self.export_grass_map).pack(fill="x", pady=5)
-        
-        # Add a button to generate/update the preview
-        ttk.Button(controls_frame, text="Update Preview", command=self.update_grass_map_preview).pack(fill="x", pady=5)
+        # Create buttons frame
+        button_frame = ttk.Frame(left_panel)
+        button_frame.pack(fill="x", pady=10)
 
-        # Add a preview canvas for the grass map
-        self.grass_map_preview_canvas = tk.Canvas(self.grass_map_tab, width=600, height=600, bg='white')
-        self.grass_map_preview_canvas.pack(side="right", pady=(20, 0))
+        # Add a button to generate/update the preview
+        self._create_styled_button(button_frame, "Update Preview", self.update_grass_map_preview, style='TButton')
+    
+        # Add a button to export the grass map
+        self._create_styled_button(button_frame, "Export Grass Map", self.export_grass_map, style='TButton')
+
+        # Create the right panel for preview
+        preview_frame = ttk.Frame(self.grass_map_tab)
+        preview_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    
+        # Add a title for the preview section
+        preview_title = ttk.Label(preview_frame, text="GRASS MAP PREVIEW", 
+                                font=("Segoe UI", 12, "bold"))
+        preview_title.pack(side="top", pady=(0, 10))
+    
+        # Create a styled canvas for the preview
+        self.grass_map_preview_canvas = self._create_styled_canvas(preview_frame, width=600, height=600)
+    
+        # Add a note for the preview
+        ttk.Label(preview_frame, text="Adjust the settings on the left to customize the grass distribution", 
+                foreground="#95a5a6", font=("Segoe UI", 8)).pack(side="top", pady=(5, 0))
 
         self.grass_map_preview_photo = None  # Persistent reference to image
-        
+    
         # Generate initial preview
         self.update_grass_map_preview()
 
     def _create_image_import_tab(self):
         """Creates the image import tab with controls and preview"""
-        # Create left panel for controls
+        # Create left panel for controls with fixed width
         left_panel = ttk.Frame(self.image_tab)
         left_panel.pack(side="left", fill="y", padx=10, pady=10)
 
         # Import button
-        self._create_styled_button(left_panel, "Import Image", self._import_image, style='TButton')
+        import_frame = ttk.Frame(left_panel)
+        import_frame.pack(fill="x", pady=5)
+        self._create_styled_button(import_frame, "Import Image", self._import_image, style='TButton')
 
         # Add resize slider frame
         resize_frame = ttk.LabelFrame(left_panel, text="Image Size", padding=10)
@@ -866,7 +1375,7 @@ class TextureGeneratorGUI:
         size_slider = self._create_slider(resize_frame, "Size", "image_size", 64, 4096, 64)
         # Remove the trace and add release binding for the size slider
         size_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
-        
+    
         ttk.Label(resize_frame, text="Note: Aspect ratio will be preserved", 
                 font=("Segoe UI", 8), foreground="#95a5a6").pack(pady=(5,0))
 
@@ -874,20 +1383,12 @@ class TextureGeneratorGUI:
         red_frame = ttk.LabelFrame(left_panel, text="Red Channel", padding=10)
         red_frame.pack(fill="x", pady=10)
 
-        green_frame = ttk.LabelFrame(left_panel, text="Green Channel", padding=10)
-        green_frame.pack(fill="x", pady=10)
-
         # Add red channel sliders with delayed updates
         red_value_slider = self._create_slider(red_frame, "Red Value", "red_channel_value", 0.0, 1.0, 0.01)
         self.vars["red_channel_value"].set(0.5)  # Default to neutral value
         # Remove the trace and add release binding for the red value slider
         red_value_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
-
-        green_value_slider = self._create_slider(green_frame, "Green Value", "green_channel_value", 0.0, 1.0, 0.01)
-        self.vars["green_channel_value"].set(0.5)  # Default to neutral value
-        # Remove the trace and add release binding for the green value slider
-        green_value_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
-        
+    
         red_lightness_slider = self._create_slider(red_frame, "Lightness", "red_lightness", 0.0, 1.0, 0.01)
         self.vars["red_lightness"].set(0.5)  # Default to neutral value
         # Remove the trace and add release binding for the lightness slider
@@ -900,8 +1401,17 @@ class TextureGeneratorGUI:
         ttk.Checkbutton(invert_frame, text="Invert Values", variable=self.vars["invert_red"], 
                     command=self._update_image_preview).pack(side="left")
 
+        # Green channel controls frame
+        green_frame = ttk.LabelFrame(left_panel, text="Green Channel", padding=10)
+        green_frame.pack(fill="x", pady=10)
+
+        green_value_slider = self._create_slider(green_frame, "Green Value", "green_channel_value", 0.0, 1.0, 0.01)
+        self.vars["green_channel_value"].set(0.5)  # Default to neutral value
+        # Remove the trace and add release binding for the green value slider
+        green_value_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
+
         # Create blur controls frame
-        blur_frame = ttk.LabelFrame(left_panel, text="Blur", padding=10)
+        blur_frame = ttk.LabelFrame(left_panel, text="Effects", padding=10)
         blur_frame.pack(fill="x", pady=10)
 
         # Add blur slider with delayed update
@@ -910,7 +1420,7 @@ class TextureGeneratorGUI:
         blur_slider.bind("<ButtonRelease-1>", lambda e: self._update_image_preview())
 
         # Create grayscale controls frame
-        gray_frame = ttk.LabelFrame(left_panel, text="Grayscale", padding=10)
+        gray_frame = ttk.LabelFrame(left_panel, text="Grayscale Conversion", padding=10)
         gray_frame.pack(fill="x", pady=10)
 
         # Add grayscale conversion button
@@ -922,16 +1432,26 @@ class TextureGeneratorGUI:
         # Remove the trace and add release binding for the exposure slider
         exposure_slider.bind("<ButtonRelease-1>", lambda e: self._update_exposure() if hasattr(self, 'is_grayscale') and self.is_grayscale else None)
 
-        # Create preview canvas
-        preview_frame = ttk.Frame(self.image_tab)
-        preview_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
-        
-        self.image_canvas = self._create_styled_canvas(preview_frame)
-
-        # Add export button
+        # Add export button in its own frame
         export_frame = ttk.Frame(left_panel)
         export_frame.pack(fill="x", pady=10)
         self._create_styled_button(export_frame, "Export Image", self._export_image, style='TButton')
+
+        # Create preview frame on the right side
+        preview_frame = ttk.Frame(self.image_tab)
+        preview_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    
+        # Add a title for the preview section
+        preview_title = ttk.Label(preview_frame, text="IMAGE PREVIEW", 
+                                font=("Segoe UI", 12, "bold"))
+        preview_title.pack(side="top", pady=(0, 10))
+    
+        # Create a styled canvas for the preview
+        self.image_canvas = self._create_styled_canvas(preview_frame, width=600, height=600)
+    
+        # Add a note for the preview
+        ttk.Label(preview_frame, text="Import an image using the button on the left", 
+                foreground="#95a5a6", font=("Segoe UI", 8)).pack(side="top", pady=(5, 0))
 
     def _export_image(self):
         """Handle image export"""
@@ -1134,98 +1654,6 @@ class TextureGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to process image: {str(e)}")
 
-    def _create_shapes_tab(self):
-        self.shapes_tab = ttk.Frame(self.notebook)
-        self.notebook.add(self.shapes_tab, text="Shapes")
-
-        # Controls on the left
-        controls_frame = ttk.Frame(self.shapes_tab)
-        controls_frame.pack(side="left", fill="y", padx=10)
-
-        shape_type_label = ttk.Label(controls_frame, text="Shape Type:")
-        shape_type_label.pack(pady=(10, 0))
-        shape_combo = ttk.Combobox(controls_frame, textvariable=self.vars["shape_type"],
-                                values=["circle", "square", "pyramid"], state="readonly")
-        shape_combo.pack()
-        shape_combo.bind("<<ComboboxSelected>>", lambda e: self.generate_shape_pattern())
-
-        slider1 = self._create_slider(controls_frame, "Shape Size", "shape_size", 1, 300, 1)
-        slider1.bind("<ButtonRelease-1>", lambda e: self.generate_shape_pattern())
-        slider2 = self._create_slider(controls_frame, "Spacing", "shape_spacing", 0, 300, 1)
-        slider2.bind("<ButtonRelease-1>", lambda e: self.generate_shape_pattern())
-
-        height_frame = ttk.LabelFrame(controls_frame, text="Height Scaling", padding=10)
-        height_frame.pack(fill="x", pady=10)
-
-        slider_min = self._create_slider(height_frame, "Min Height", "shape_min_height", 0.0, 1.0, 0.01)
-        slider_min.bind("<ButtonRelease-1>", lambda e: self.generate_shape_pattern())
-
-        slider_max = self._create_slider(height_frame, "Max Height", "shape_max_height", 0.0, 2.0, 0.01)
-        slider_max.bind("<ButtonRelease-1>", lambda e: self.generate_shape_pattern())
-
-        ttk.Label(controls_frame, text="Export Size:").pack(pady=(10, 0))
-        export_size_combo = ttk.Combobox(
-            controls_frame,
-            textvariable=self.vars["shape_export_size"],
-            values=[64, 128, 256, 512, 1024, 2048, 4096],
-            state="readonly"
-        )
-        export_size_combo.pack()
-        export_size_combo.bind("<<ComboboxSelected>>", lambda e: self.generate_shape_pattern())
-
-        self._create_styled_button(controls_frame, "Export Shape Map", self.export_shape_map).pack(fill="x", pady=5)
-
-        # Preview canvas
-        self.shape_preview_canvas = self._create_styled_canvas(self.shapes_tab, width=600, height=600)
-        self.shape_preview_canvas.pack(side="right", padx=10, pady=10)
-
-    def generate_shape_pattern(self):
-        try:
-            size = self.vars["shape_export_size"].get()
-            shape_type = self.vars["shape_type"].get()
-            shape_size = self.vars["shape_size"].get()
-            spacing = self.vars["shape_spacing"].get()
-            min_h = self.vars["shape_min_height"].get()
-            max_h = self.vars["shape_max_height"].get()
-            
-            shape_array = self.generator.generate_shape_noise(
-                size=size,
-                shape_type=shape_type,
-                shape_size=shape_size,
-                spacing=spacing
-            )
-
-            shape_array = np.clip(shape_array, 0.0, 1.0)
-            shape_array = shape_array * (max_h - min_h) + min_h
-            shape_array = np.clip(shape_array, 0.0, 1.0)
-
-            red = (shape_array * 255).astype(np.uint8)
-            rgb = np.zeros((shape_array.shape[0], shape_array.shape[1], 3), dtype=np.uint8)
-            rgb[..., 0] = red
-            img_pil = Image.fromarray(rgb, mode="RGB")
-
-            # Resize and display
-            preview = img_pil.resize((600, 600), Image.NEAREST)
-            self.shape_image = img_pil
-            self.shape_preview = ImageTk.PhotoImage(preview)
-            self.shape_preview_canvas.delete("all")
-            self.shape_preview_canvas.create_image(300, 300, image=self.shape_preview)
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate shape pattern:\n{e}")
-
-    def export_shape_map(self):
-        if not hasattr(self, "shape_image"):
-            messagebox.showwarning("Warning", "Generate a shape pattern first.")
-            return
-
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".png",
-            filetypes=[("PNG files", "*.png")]
-        )
-        if file_path:
-            self.shape_image.save(file_path)
-            messagebox.showinfo("Success", f"Shape map saved to {file_path}")
-
     def _generate_landmass(self):
         """Generate heightmap with landmass shape, returning a 2D float numpy array normalized 0-1."""
         try:
@@ -1393,250 +1821,6 @@ class TextureGeneratorGUI:
         grass_map_image = self.create_grass_map_data()
         Image.fromarray(grass_map_image).save(file_path)
         messagebox.showinfo("Success", f"Grass map saved to {file_path}")
-
-    def _on_size_change(self):
-        # Get the current size and the new size
-        old_size = getattr(self, "current_size", self.vars["noise_size"].get())
-        new_size = self.vars["noise_size"].get()
-
-        # Calculate the scaling factor
-        scale_factor = new_size / old_size
-
-        # Get the canvas dimensions
-        canvas_width, canvas_height = 600, 600
-
-        # Calculate the current focus point in terms of the heightmap
-        focus_x = getattr(self, "focus_x", 0.5) * old_size
-        focus_y = getattr(self, "focus_y", 0.5) * old_size
-
-        # Adjust the focus point to keep the canvas center consistent
-        canvas_center_x = canvas_width / 2
-        canvas_center_y = canvas_height / 2
-
-        focus_x = (focus_x + canvas_center_x * (scale_factor - 1)) / new_size
-        focus_y = (focus_y + canvas_center_y * (scale_factor - 1)) / new_size
-
-        # Update the focus point
-        self.focus_x = max(0.0, min(1.0, focus_x))
-        self.focus_y = max(0.0, min(1.0, focus_y))
-
-        # Update the current size
-        self.current_size = new_size
-
-        # Update the preview
-        self.update_noise_preview()
-
-    def _create_noise_preview(self):
-        # Create the preview canvas directly in the noise tab
-        preview_frame = ttk.Frame(self.noise_tab)
-        preview_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
-        
-        # Add a title for the preview section
-        preview_title = ttk.Label(preview_frame, text="NOISE PREVIEW", 
-                                font=("Segoe UI", 12, "bold"))
-        preview_title.pack(side="top", pady=(0, 10))
-        
-        # Add zoom and position indicators
-        info_frame = ttk.Frame(preview_frame)
-        info_frame.pack(side="top", fill="x", pady=(0, 5))
-        
-        # Position indicator
-        pos_frame = ttk.Frame(info_frame)
-        pos_frame.pack(side="left", fill="x", expand=True)
-        ttk.Label(pos_frame, text="Position:").pack(side="left")
-        self.position_label = ttk.Label(pos_frame, text="Center")
-        self.position_label.pack(side="left", padx=5)
-        
-        # Zoom indicator
-        zoom_frame = ttk.Frame(info_frame)
-        zoom_frame.pack(side="right")
-        ttk.Label(zoom_frame, text="Zoom:").pack(side="left")
-        self.zoom_label = ttk.Label(zoom_frame, text="100%")
-        self.zoom_label.pack(side="left", padx=5)
-        
-        # Create the canvas for the preview
-        self.noise_preview_canvas = self._create_styled_canvas(preview_frame, width=600, height=600)
-        self.noise_preview_canvas.pack(side="top", fill="both", expand=True)
-        
-        # Bind mouse events for panning
-        self.noise_preview_canvas.bind("<ButtonPress-1>", self._on_canvas_click)
-        self.noise_preview_canvas.bind("<B1-Motion>", self._on_canvas_drag)
-        
-        # Add zoom controls
-        zoom_controls = ttk.Frame(preview_frame)
-        zoom_controls.pack(side="top", pady=5)
-        
-        zoom_out_btn = ttk.Button(zoom_controls, text="-", width=3, 
-                                command=lambda: [self.vars["scale"].set(max(1.0, self.vars["scale"].get() - 10.0)), 
-                                                self.update_noise_preview()])
-        zoom_out_btn.pack(side="left", padx=2)
-        
-        zoom_reset_btn = ttk.Button(zoom_controls, text="Reset", 
-                                command=self._reset_view)
-        zoom_reset_btn.pack(side="left", padx=10)
-        
-        zoom_in_btn = ttk.Button(zoom_controls, text="+", width=3, 
-                                command=lambda: [self.vars["scale"].set(min(500.0, self.vars["scale"].get() + 10.0)), 
-                                                self.update_noise_preview()])
-        zoom_in_btn.pack(side="left", padx=2)
-        
-        # Add tooltip instructions
-        tip_text = "Click and drag to pan. Use zoom buttons or mouse wheel to zoom."
-        ttk.Label(preview_frame, text=tip_text, foreground="#95a5a6", 
-                font=("Segoe UI", 8)).pack(side="top", pady=(5, 0))
-        
-        # Bind mouse wheel for zooming
-        self.noise_preview_canvas.bind("<MouseWheel>", self._on_mouse_wheel)
-        # For Linux/Mac
-        self.noise_preview_canvas.bind("<Button-4>", lambda e: self._on_mouse_wheel(e, 120))
-        self.noise_preview_canvas.bind("<Button-5>", lambda e: self._on_mouse_wheel(e, -120))
-
-    def _reset_view(self):
-        """Reset the view to default position and scale."""
-        self.focus_x = 0.5
-        self.focus_y = 0.5
-        self.vars["scale"].set(150.0)  # Reset to default scale
-        self.update_noise_preview()
-        
-    def _adjust_zoom(self, direction):
-        """Adjust zoom level."""
-        current_scale = self.vars["scale"].get()
-        if direction > 0:
-            # Zoom in (increase scale value)
-            new_scale = min(500.0, current_scale * 1.25)
-        else:
-            # Zoom out (decrease scale value)
-            new_scale = max(1.0, current_scale * 0.8)
-
-        self.vars["scale"].set(new_scale)
-        self.scale_var.set(f"{new_scale:.2f}")
-        self.update_noise_preview()
-        
-    def _on_mouse_wheel(self, event, delta=None):
-        """Handle mouse wheel events for zooming."""
-        if delta is None:
-            delta = event.delta
-        
-        if delta > 0:
-            self._adjust_zoom(1)  # Zoom in
-        else:
-            self._adjust_zoom(-1)  # Zoom out
-
-    def _on_canvas_click(self, event):
-        # Store the initial click position
-        self.drag_start_x = event.x
-        self.drag_start_y = event.y
-    
-        # Only store initial position, don't immediately update focus point
-        # This prevents immediate jumps in the display
-
-    def _on_canvas_drag(self, event):
-        # Calculate the exact drag distance in canvas space
-        dx = event.x - self.drag_start_x
-        dy = event.y - self.drag_start_y
-    
-        # Convert drag distance to world space movement
-        # Use floating point arithmetic to ensure smooth movement
-        canvas_width, canvas_height = 600, 600
-        world_dx = dx / canvas_width
-        world_dy = dy / canvas_height
-    
-        # Update the focus point (move in opposite direction of drag)
-        self.focus_x = max(0.0, min(1.0, getattr(self, "focus_x", 0.5) - world_dx))
-        self.focus_y = max(0.0, min(1.0, getattr(self, "focus_y", 0.5) - world_dy))
-    
-        # Update drag start to current position
-        self.drag_start_x = event.x
-        self.drag_start_y = event.y
-    
-        # Generate new preview with updated focus
-        self.update_noise_preview()
-
-    def _on_canvas_release(self, event):
-        # Finalize the drag operation (optional, can be used for cleanup)
-        pass
-
-    def generate_greyscale_heightmap(self):
-        """Generate and save the heightmap in greyscale."""
-        # Ask for save location
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".png",
-            filetypes=[("PNG files", "*.png")]
-        )
-
-        if not file_path:
-            return  # User canceled
-
-        size = self.vars["noise_size"].get()
-        num_workers = multiprocessing.cpu_count()
-
-        # Capture all parameters
-        focus_x = getattr(self, "focus_x", 0.5)
-        focus_y = getattr(self, "focus_y", 0.5)
-
-        vars_dict = {k: v.get() for k, v in self.vars.items()}
-        vars_dict["focus_x"] = focus_x
-        vars_dict["focus_y"] = focus_y
-
-        # Generate noise data
-        noise_data = self._generate_full_noise_data(size, vars_dict, num_workers)
-
-        # Create greyscale heightmap
-        heightmap = self._create_heightmap(noise_data)
-
-        # Convert heightmap to greyscale (using the red channel)
-        greyscale_image = Image.fromarray(heightmap[:, :, 0])  # Use the red channel for greyscale
-
-        # Save it
-        greyscale_image.save(file_path)
-        messagebox.showinfo("Success", f"Greyscale heightmap saved to {file_path}")
-
-    def _create_heightmap(self, height_data):
-        # Create RGB image with height in red channel
-        heightmap = np.zeros((height_data.shape[0], height_data.shape[1], 3), dtype=np.uint8)
-        
-        # Get min and max height values
-        min_height = self.vars["min_height"].get()  # Get min height from the slider
-        max_height = self.vars["max_height"].get()
-        
-        # Adjust height data based on min/max settings
-        if min_height != 0.0:
-            # Shift the entire height range up or down
-            height_data = height_data + min_height
-        
-        if max_height != 1.0:
-            # Scale the height range
-            current_max = height_data.max()
-            if current_max > 0:
-                height_data = height_data * (max_height / current_max)
-        
-        # Ensure values are within valid range
-        height_data = np.clip(height_data, 0.0, 1.0)
-        
-        # Scale to 0-255 range
-        height_scaled = (height_data * 255).astype(np.uint8)
-        
-        # Apply vignette if strength > 0
-        vignette_strength = self.vars["vignette_strength"].get()
-        if vignette_strength > 0:
-            vignette_radius = self.vars["vignette_radius"].get()
-            height_scaled = self._apply_vignette(height_scaled, vignette_strength, vignette_radius)
-        
-        # Set channels according to Teardown's format
-        heightmap[:, :, 0] = height_scaled  # Red channel = height
-        if self.vars["use_noise_grass"].get():
-            # Generate grass noise
-            grass_noise = self._generate_grass_noise(height_data.shape[0], height_data.shape[1])
-            heightmap[:, :, 1] = grass_noise  # Green channel = grass with noise
-        else:
-            # Use uniform grass amount
-            heightmap[:, :, 1] = self.vars["grass_amount"].get()  # Green channel = grass amount
-
-        # Fill with hard blue by default
-        special_val = self.vars["special_value"].get()
-        heightmap[:, :, 2] = special_val
-
-        return heightmap
     
     def _generate_grass_noise(self, height, width):
         """Generate grass noise using exactly the same coordinate system as the main noise."""
@@ -1699,9 +1883,6 @@ class TextureGeneratorGUI:
 
         return grass_map
 
-
-
-
     def _apply_vignette(self, image, strength, radius):
         """Apply vignette effect to the image."""
         # Support both grayscale and color images
@@ -1750,21 +1931,12 @@ class TextureGeneratorGUI:
             noise_type_map = {
                 "perlin noise": NoiseTypeEnum.PERLINNOISE,
                 "fractal noise": NoiseTypeEnum.FRACTALNOISE,
-                "turbulence noise": NoiseTypeEnum.TURBULENCE,
-                "shape noise": NoiseTypeEnum.SHAPE_NOISE
+                "turbulence noise": NoiseTypeEnum.TURBULENCE
             }
             if current_noise_type_str not in noise_type_map:
                 messagebox.showerror("Error", f"Unknown noise type: {current_noise_type_str}")
                 return np.full((size, size), 0.5, dtype=np.float32) # Return default
             noise_type = noise_type_map[current_noise_type_str]
-
-
-        if noise_type == NoiseTypeEnum.SHAPE_NOISE:
-            shape_type = self.vars["shape_type"].get()
-            shape_size = self.vars["shape_size"].get()
-            shape_spacing = self.vars["shape_spacing"].get()
-            noise_data = self.generator.generate_shape_noise(size, shape_type, shape_size, shape_spacing)
-            return noise_data
 
         # Create output array
         noise_data = np.zeros((size, size), dtype=np.float32)
@@ -1803,16 +1975,24 @@ class TextureGeneratorGUI:
 
     def update_noise_preview(self, event=None):
         try:
-            # Set the preview resolution to high quality (e.g., 256)
+            # Set the preview resolution 
             preview_res = 256  # Always use high quality
 
+            # Generate the raw noise data
             noise_data = self._generate_noise_data(preview_res)
+        
+            # Create heightmap with canyons and other effects
             heightmap = self._create_heightmap(noise_data)
+        
+            # Convert to PIL image for display
             self.full_heightmap = Image.fromarray(heightmap)
-
+        
+            # Display the preview
             self._update_preview_canvas()
         except Exception as e:
             print(f"Preview generation error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _update_preview_canvas(self):
         if self.full_heightmap is None:
@@ -1848,8 +2028,7 @@ class TextureGeneratorGUI:
                 self.root.after(0, lambda: self.generate_button.config(state="disabled"))
 
                 size = self.vars["noise_size"].get()
-                num_workers = multiprocessing.cpu_count()
-
+            
                 # Use the same focus points as the preview
                 focus_x = getattr(self, "focus_x", 0.5)
                 focus_y = getattr(self, "focus_y", 0.5)
@@ -1859,10 +2038,16 @@ class TextureGeneratorGUI:
                 vars_dict["focus_x"] = focus_x
                 vars_dict["focus_y"] = focus_y
 
-                # Generate noise data using multiprocessing
-                noise_data = self._generate_full_noise_data(size, vars_dict, num_workers)
+                # For landmass mode, generate using the existing function
+                if vars_dict["noise_type"] == "landmass":
+                    # For landmass, use the existing function which handles its own multiprocessing
+                    noise_data = self._generate_landmass()
+                else:
+                    # For other noise types, use multiprocessing
+                    num_workers = min(multiprocessing.cpu_count(), 4)
+                    noise_data = self._generate_full_noise_data(size, vars_dict, num_workers)
 
-                # Create heightmap
+                # Create heightmap with canyons applied (handled in _create_heightmap)
                 heightmap = self._create_heightmap(noise_data)
 
                 # Save the heightmap as an image
@@ -1873,6 +2058,8 @@ class TextureGeneratorGUI:
 
             except Exception as e:
                 self.root.after(0, lambda e=e: messagebox.showerror("Error", str(e)))
+                import traceback
+                traceback.print_exc()
 
             finally:
                 self.root.after(0, lambda: self.generate_button.config(state="normal"))
@@ -1914,59 +2101,201 @@ class TextureGeneratorGUI:
         noise_type = {
             "perlin noise": NoiseTypeEnum.PERLINNOISE,
             "fractal noise": NoiseTypeEnum.FRACTALNOISE,
-            "turbulence noise": NoiseTypeEnum.TURBULENCE,
-            "shape noise": NoiseTypeEnum.SHAPE_NOISE
+            "turbulence noise": NoiseTypeEnum.TURBULENCE
         }[vars_dict["noise_type"]]
     
         # Initialize the chunk
         chunk = np.zeros((end_row - start_row, size), dtype=np.float32)
+   
+        # Get focus point coordinates
+        focus_x = max(0.0, min(1.0, vars_dict["focus_x"]))  # Clamp to [0, 1]
+        focus_y = max(0.0, min(1.0, vars_dict["focus_y"]))  # Clamp to [0, 1]
     
-        # Handle shape noise differently
-        if noise_type == NoiseTypeEnum.SHAPE_NOISE:
-            # Get shape parameters
-            shape_type = vars_dict.get("shape_type", "circle")
-            shape_size = vars_dict.get("shape_size", 10)
-            shape_spacing = vars_dict.get("shape_spacing", 5)
-        
-            # Generate only the required chunk of shape noise
-            # Note: This approach needs to generate the entire pattern to ensure consistency
-            # but only returns the requested chunk
-            full_shape_noise = generator.generate_shape_noise(size, shape_type, shape_size, shape_spacing)
-            chunk = full_shape_noise[start_row:end_row, :]
-        else:
-            # Get focus point coordinates
-            focus_x = max(0.0, min(1.0, vars_dict["focus_x"]))  # Clamp to [0, 1]
-            focus_y = max(0.0, min(1.0, vars_dict["focus_y"]))  # Clamp to [0, 1]
-        
-            # Calculate the world offset
-            world_offset_x = (focus_x - 0.5) * size  # Center on focus_x
-            world_offset_y = (focus_y - 0.5) * size  # Center on focus_y
-        
-            # Apply zoom factor to the scale
-            preview_res = vars_dict.get("preview_res", 256)  # Default preview resolution
-            zoom_factor = size / preview_res  # Scale export to match preview zoom
-            adjusted_scale = vars_dict["scale"] * zoom_factor
-        
-            base_offset_x = 1000.0
-            base_offset_y = 1000.0
-        
-            # Generate noise data for each pixel in the chunk
-            for y in range(start_row, end_row):
-                for x in range(size):
-                    sample_x = base_offset_x + (x - world_offset_x) / adjusted_scale
-                    sample_y = base_offset_y + (y - world_offset_y) / adjusted_scale
-                
-                    chunk[y - start_row, x] = generator.noise.simplexNoise(
-                        noise_type,
-                        size,
-                        vars_dict["octaves"],
-                        vars_dict["persistence"],
-                        vars_dict["lacunarity"],
-                        1.0,
-                        sample_x, sample_y
-                    )
+        # Calculate the world offset
+        world_offset_x = (focus_x - 0.5) * size  # Center on focus_x
+        world_offset_y = (focus_y - 0.5) * size  # Center on focus_y
+    
+        # Apply zoom factor to the scale
+        preview_res = vars_dict.get("preview_res", 256)  # Default preview resolution
+        zoom_factor = size / preview_res  # Scale export to match preview zoom
+        adjusted_scale = vars_dict["scale"] * zoom_factor
+    
+        base_offset_x = 1000.0
+        base_offset_y = 1000.0
+    
+        # Generate noise data for each pixel in the chunk
+        for y in range(start_row, end_row):
+            for x in range(size):
+                sample_x = base_offset_x + (x - world_offset_x) / adjusted_scale
+                sample_y = base_offset_y + (y - world_offset_y) / adjusted_scale
+            
+                chunk[y - start_row, x] = generator.noise.simplexNoise(
+                    noise_type,
+                    size,
+                    vars_dict["octaves"],
+                    vars_dict["persistence"],
+                    vars_dict["lacunarity"],
+                    1.0,
+                    sample_x, sample_y
+                )
     
         return chunk
+
+def _create_canyon_path_worker(args):
+    """Worker function to generate a canyon path in parallel."""
+    start_x, start_y, cx, cy, canyon_length, canyon_branch_density, canyon_seed, size = args
+    import math
+    from noise import snoise2
+    import numpy as np
+    
+    # Direction vector toward center
+    to_center_x = cx - start_x
+    to_center_y = cy - start_y
+    
+    # Skip if already at center
+    if abs(to_center_x) < 1 and abs(to_center_y) < 1:
+        return None
+    
+    # Fixed random generator with canyon-specific seed
+    fixed_rng = np.random.RandomState(canyon_seed)
+    
+    # Get distance to center
+    dist_to_center = math.sqrt(to_center_x**2 + to_center_y**2)
+    
+    # Normalize direction vector
+    if dist_to_center > 0:
+        to_center_x /= dist_to_center
+        to_center_y /= dist_to_center
+    
+    # Add slight random angle deviation
+    angle_deviation = fixed_rng.uniform(-0.1, 0.1)
+    rotated_x = to_center_x * math.cos(angle_deviation) - to_center_y * math.sin(angle_deviation)
+    rotated_y = to_center_x * math.sin(angle_deviation) + to_center_y * math.cos(angle_deviation)
+    to_center_x, to_center_y = rotated_x, rotated_y
+    
+    # Calculate max possible path length
+    max_path_length = int(dist_to_center * 0.95)  # Maximum allowed length
+    
+    # Generate wiggle parameters from fixed RNG
+    wiggle_freq = fixed_rng.uniform(30.0, 50.0)
+    wiggle_amp = fixed_rng.uniform(0.2, 0.5)
+    wiggle_phase = fixed_rng.uniform(0, 100)
+    
+    # Initialize canyon path
+    path_points = [(start_x, start_y)]
+    x, y = start_x, start_y
+    
+    # Draw path with wiggles
+    step_count = 0
+    
+    # Generate the FULL path up to max_path_length
+    while len(path_points) < max_path_length:
+        step_count += 1
+    
+        # Get perlin noise value for wiggles
+        perlin_val = snoise2(step_count/wiggle_freq, wiggle_phase, octaves=1)
+    
+        # Add random jitter
+        jitter = fixed_rng.uniform(-0.05, 0.05)
+    
+        # Calculate wiggle angle
+        wiggle_angle = perlin_val * wiggle_amp * math.pi + jitter
+    
+        # Add periodic larger bends
+        if step_count % 8 == 0:
+            wiggle_angle += fixed_rng.uniform(-0.2, 0.2)
+        
+        # Apply wiggle to direction
+        dx = to_center_x * math.cos(wiggle_angle) - to_center_y * math.sin(wiggle_angle)
+        dy = to_center_x * math.sin(wiggle_angle) + to_center_y * math.cos(wiggle_angle)
+    
+        # Use consistent step size
+        step_size = fixed_rng.uniform(1.0, 2.0)
+    
+        # Move along path
+        x += dx * step_size
+        y += dy * step_size
+    
+        # Keep in bounds
+        x = min(max(0, x), size-1)
+        y = min(max(0, y), size-1)
+    
+        # Add point to path
+        path_points.append((int(x), int(y)))
+        
+        # Stop if we're very close to center
+        if math.sqrt((x - cx)**2 + (y - cy)**2) < 10:
+            break
+        
+    # Create and store branch paths as well
+    branches = []
+    
+    # Generate all potential branches (with fixed seed based on canyon seed)
+    for i, (px, py) in enumerate(path_points):
+        # Only generate branches beyond a certain point along main path
+        path_progress = i / len(path_points)
+        if 0.3 < path_progress < 0.7 and fixed_rng.random() < canyon_branch_density:
+            # Use canyon_seed instead of main seed for branch seeds
+            branch_seed = canyon_seed + i + int(px * 100 + py)
+            branch_rng = np.random.RandomState(branch_seed)
+            
+            # Branch parameters
+            branch_angle = branch_rng.uniform(-math.pi/4, math.pi/4)
+            
+            # Get direction vector of main path at this point
+            if i < len(path_points) - 1:
+                main_dx = path_points[i+1][0] - px
+                main_dy = path_points[i+1][1] - py
+            else:
+                main_dx = path_points[i][0] - path_points[i-1][0]
+                main_dy = path_points[i][1] - path_points[i-1][1]
+            
+            # Normalize
+            length = math.sqrt(main_dx**2 + main_dy**2)
+            if length > 0:
+                main_dx /= length
+                main_dy /= length
+            
+            # Rotate to get branch direction
+            branch_dx = main_dx * math.cos(branch_angle) - main_dy * math.sin(branch_angle)
+            branch_dy = main_dx * math.sin(branch_angle) + main_dy * math.cos(branch_angle)
+            
+            branch_length = branch_rng.uniform(20, 50)
+            branch_points = [(int(px), int(py))]
+            
+            # Branch wiggle parameters
+            branch_freq = branch_rng.uniform(20.0, 40.0)
+            branch_amp = branch_rng.uniform(0.2, 0.4)
+            branch_phase = branch_rng.uniform(0, 100)
+            
+            branch_x, branch_y = px, py
+            
+            # Create branch path
+            for step in range(int(branch_length)):
+                branch_perlin = snoise2(step/branch_freq, branch_phase, octaves=1)
+                branch_wiggle = branch_perlin * branch_amp * math.pi + branch_rng.uniform(-0.05, 0.05)
+                
+                branch_dir_x = branch_dx * math.cos(branch_wiggle) - branch_dy * math.sin(branch_wiggle)
+                branch_dir_y = branch_dx * math.sin(branch_wiggle) + branch_dy * math.cos(branch_wiggle)
+                
+                step_size = branch_rng.uniform(1.0, 1.5)
+                branch_x += branch_dir_x * step_size
+                branch_y += branch_dir_y * step_size
+                
+                # Keep in bounds
+                if branch_x < 0 or branch_x >= size or branch_y < 0 or branch_y >= size:
+                    break
+                
+                branch_points.append((int(branch_x), int(branch_y)))
+            
+            # Save this branch
+            if len(branch_points) > 5:  # Only save non-trivial branches
+                branches.append(branch_points)
+    
+    return {
+        'main_path': path_points,
+        'branches': branches
+    }
 
 def generate_landmass_chunk(start_y, end_y, size, noise_scale, octaves, seed):
         chunk = np.zeros((end_y - start_y, size), dtype=np.float32)
