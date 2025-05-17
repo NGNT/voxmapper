@@ -3,7 +3,9 @@
 Voxmapper is a powerful tool for modding Teardown. It generates heightmaps, textures, and grass maps using a variety of advanced noise algorithms and terrain generation techniques.
 Built with a modern, intuitive GUI, it lets you craft custom terrain features for your Teardown maps with precise control and real-time preview capabilities.
 
-![main GUI](https://cdn.nostrcheck.me/e3a008056fad8196be4b8315386ba2079eb9794900066d8424b8d0cbe579c573.png)
+![Mountain GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/a681515b88684d0894d4a3ac673a7b314f63e43fa276752ba9cc3a6d43fd8a66.webp)
+![Grass Map GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/2bc3839024297cd132aaa499c34e14b7e715a55a8ec8fda7ce07a3139c58c9af.webp)
+![Image GUI](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/4330f075240b10828159bdb24ac7a7e1d29da6f54822fddbf9274c065adac5ca.webp)
 ![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/6c74d2920207b6e6fe8c132e5a4ea677df227bd965815ac3d5886f458718c7a5.webp)
 ![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/1235a154e0c3ef80d52821b39ea3d86e3b677cdf291fee2f040457058989905a.webp)
 
