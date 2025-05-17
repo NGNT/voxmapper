@@ -1,7 +1,7 @@
 # Voxmapper
 
-Voxmapper is a simple but powerful tool for modding Teardown. It generates textures and grass maps using a variety of noise algorithms.  
-Built with a clean GUI, it lets you craft custom heightmaps and textures for your Teardown maps easily and flawlessly.  
+Voxmapper is a powerful tool for modding Teardown. It generates heightmaps, textures, and grass maps using a variety of advanced noise algorithms and terrain generation techniques.
+Built with a modern, intuitive GUI, it lets you craft custom terrain features for your Teardown maps with precise control and real-time preview capabilities.
 
 ![main GUI](https://cdn.nostrcheck.me/e3a008056fad8196be4b8315386ba2079eb9794900066d8424b8d0cbe579c573.png)
 ![output](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/6c74d2920207b6e6fe8c132e5a4ea677df227bd965815ac3d5886f458718c7a5.webp)
@@ -10,11 +10,30 @@ Built with a clean GUI, it lets you craft custom heightmaps and textures for you
 
 ## Features
 
-- **Noise Generation**: Generate textures using different noise types (Perlin, fractal, turbulence, shape).
-- **Grass Map Creation**: Create grass maps with adjustable parameters for density, noise amounts, and lightness.
-- **Vignette Effects**: Apply vignette effects to enhance the visual quality of generated textures.
-- **Export Options**: Save generated textures and grass maps as PNG files.
-- **User-Friendly Interface**: Easy-to-use controls for adjusting parameters and previewing results in real-time.
+### Heightmap Generation
+- **Multiple Noise Types**: Generate terrain using Perlin noise, fractal noise, turbulence noise, and specialized landmass algorithms
+- **Realistic Canyon System**: Create complex canyon networks with branching river systems
+- **Landmass Generation**: Design islands and continents with realistic shorelines and elevation profiles
+- **Interactive Preview**: Pan and zoom to focus on specific areas with real-time feedback
+- **Advanced Terrain Controls**: Fine-tune terrain features with octaves, persistence, lacunarity, and more
+
+### Grass Map Creation
+- **Procedural Grass Generation**: Create realistic grass distribution patterns with variable density
+- **Noise-Based Options**: Choose between uniform grass or noise-based distribution
+- **Multiple Noise Systems**: Combine Perlin noise and simple noise with adjustable weights
+- **Density & Lightness Controls**: Fine-tune grass appearance with intuitive sliders
+
+### Image Processing
+- **Image Import**: Import and process external images for heightmap and texture creation
+- **Grayscale Conversion**: Convert color images to game-compatible grayscale heightmaps
+- **Channel Manipulation**: Edit red and green channels separately for precise terrain control
+- **Effects System**: Apply vignette, blur, and exposure adjustments
+
+### User Interface
+- **Modern Styling**: Clean, modern interface with tooltips and organized controls
+- **Real-Time Preview**: See changes immediately in the preview panel
+- **Multi-Core Processing**: Utilizes parallel processing for faster generation of large heightmaps
+- **Export Options**: Save heightmaps in various formats compatible with Teardown
 
 
 ## Requirements
@@ -28,7 +47,7 @@ Built with a clean GUI, it lets you craft custom heightmaps and textures for you
 
 ## Installation
 
-   Install the required packages:
+Install the required packages:
    ```bash
    pip install pillow numpy noise
    ```
@@ -36,13 +55,47 @@ Built with a clean GUI, it lets you craft custom heightmaps and textures for you
 
 ## Basic Usage
 
-1. Run the application
+1. Run the application:
 
-2. Use the sliders in the GUI to adjust parameters for noise generation and grass map creation.
+2. Choose the appropriate tab for your needs:
+- **Mountain Generation**: Create heightmaps with various noise algorithms
+- **Grass Map**: Generate grass distribution maps for your terrain
+- **Image Import**: Process external images for use as heightmaps
 
-3. Click on the "Generate Noise", "Generate Greyscale Heightmap" or "Generate Grass Map" buttons to create your textures.
+3. Adjust parameters using the sliders in the left panel:
+- For heightmaps: modify noise type, scale, octaves, and other terrain features
+- For grass maps: set density, noise amounts, and appearance settings
+- For image processing: adjust channel values, apply effects
 
-4. Use the "Export" buttons to save your generated images.
+4. Use the interactive preview panel to examine your creation:
+- Pan by clicking and dragging
+- Zoom using the buttons or mouse wheel
+- The position indicator shows your current focus point
+
+5. Generate and export your creation using the buttons at the bottom of the controls panel.
+
+
+## Advanced Features
+
+### Canyon System
+The canyon generation system creates realistic river networks with:
+- Adjustable canyon intensity, length, and branch density
+- Procedural branching patterns that flow naturally across the terrain
+- Independent seed control for consistent canyon patterns
+
+### Landmass Generation
+Create realistic island and continent shapes with:
+- Control over land-to-water ratio
+- Adjustable shore height for beach areas
+- Plain factor controls for flat vs. mountainous terrain
+- Customizable noise scale and octaves for terrain detail
+
+### Grass Map Controls
+Fine-tune your grass maps with:
+- Toggle between uniform and noise-based grass distribution
+- Adjustable grass density threshold
+- Combined noise systems with individual weight controls
+- Lightness adjustment for non-grass areas
 
 
 ## Biome Tags
@@ -64,7 +117,7 @@ In your biome_ground.lua, assign a tag to the '**biome**' input:
 | forest       | Temperate forest                    |
 | volcano      | Volcanic rocks                      |
 | tundra       | Arctic tundra                       |
-| alienjungle  | Alien jungle environment            |
+| alienjungle | Alien jungle environment            |
 | crystalfields| Crystal formations                  |
 | beach        | Sandy beach                         |
 | savanna      | Golden grasslands                   |
@@ -76,22 +129,22 @@ In your biome_ground.lua, assign a tag to the '**biome**' input:
 | meadow       | Lush grass with wildflowers         |
 | icelands     | Glacial environment                 |
 | jungle       | Dense tropical rainforest           |
-| ashlands     | Volcanic ash-covered                |
+| ashlands     | Volcanic ash-covered             |
 | mangrove     | Coastal wetland                     |
 | cherry       | Cherry blossom landscape            |
 | highlands    | Rugged upland terrain               |
 | mesa         | Layered red clay formations         |
 | wasteland    | Barren environment                  |
-| taiga        | Northern coniferous forest          |
+| taiga        | Northern coniferous forest       |
 | corruption   | Purple magical corruption           |
 | candyland    | Sweet-themed landscape              |
 | ethereal     | Heavenly blue realm                 |
-| cyberpunk    | Urban futuristic landscape          |
+| cyberpunk    | Urban futuristic landscape       |
 | crimson      | Blood-red fantasy theme             |
-| vaporwave    | Retro-futuristic aesthetic          |
+| vaporwave    | Retro-futuristic aesthetic       |
 | neon         | Electric green and yellow           |
 | toxic        | Radioactive green environment       |
-| glitch       | Digital glitch-themed               |
+| glitch    | Digital glitch-themed               |
 | underdark    | Fantasy underworld                  |
 
 
@@ -101,6 +154,16 @@ In your biome_ground.lua, assign a tag to the '**biome**' input:
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/2f5f696c954ea77e0c9d77be871a53e3afbade37c1d7188cff5127b622c39c7c.webp)
 ![example](https://cdn.nostrcheck.me/46025249f65d47dddb0f17d93eb8b0a32d97fe3189c6684bbd33136a0a7e0424/03d1827c9f4e7911647b5ccc52f052c3181f53d8b79c9559b3f8efbba5512df4.webp)
 
+
+## Performance Notes
+
+- The application uses multiprocessing to speed up generation of large heightmaps.
+- For very large maps (>2048px), ensure your system has sufficient RAM.
+- Preview generation is optimized to maintain UI responsiveness.
+
+## Version History
+
+Current version: v1.4.1
 
 ## License
 
